@@ -1,0 +1,3346 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NGINX Config Generator — OCASDEV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy-950: #020b1a;
+  --navy-900: #050f22;
+  --navy-850: #071428;
+  --navy-800: #0a1c36;
+  --navy-750: #0d2348;
+  --navy-700: #112d5e;
+  --navy-600: #183d7a;
+  --navy-500: #1e4d96;
+  --navy-400: #2a62b5;
+  --blue-400: #3b7fd4;
+  --blue-300: #5c9de0;
+  --blue-200: #8abbec;
+  --blue-100: #b8d7f5;
+  --blue-50: #e5f1fc;
+  --cyan-400: #0ea5c8;
+  --cyan-300: #38bcd8;
+  --green-400: #10b981;
+  --green-300: #34d399;
+  --amber-400: #f59e0b;
+  --red-400: #ef4444;
+  --red-300: #f87171;
+  --text-primary: #e8f0fe;
+  --text-secondary: #8ba8cc;
+  --text-muted: #4a6380;
+  --border: rgba(59, 127, 212, 0.18);
+  --border-hover: rgba(59, 127, 212, 0.35);
+  --surface: rgba(10, 28, 54, 0.8);
+  --surface-hover: rgba(17, 45, 94, 0.6);
+  --input-bg: rgba(5, 15, 34, 0.7);
+  --accent: #3b7fd4;
+  --accent-glow: rgba(59, 127, 212, 0.15);
+  --font-ui: 'DM Sans', sans-serif;
+  --font-display: 'Syne', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-ui);
+  background: var(--navy-950);
+  color: var(--text-primary);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── HEADER ── */
+header {
+  background: rgba(2, 11, 26, 0.95);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.logo img { height: 28px; }
+
+.logo-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+}
+
+.logo-tool {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+}
+
+.logo-tool span { color: var(--blue-300); }
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ── LAYOUT ── */
+.app {
+  display: grid;
+  grid-template-columns: 260px 1fr 380px;
+  min-height: calc(100vh - 60px);
+}
+
+/* ── SIDEBAR NAV ── */
+.sidebar {
+  background: rgba(5, 15, 34, 0.6);
+  border-right: 1px solid var(--border);
+  padding: 1.5rem 0;
+  overflow-y: auto;
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+}
+
+.sidebar-section {
+  margin-bottom: 0.25rem;
+}
+
+.sidebar-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  padding: 1rem 1.25rem 0.4rem;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.5rem 1.25rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  border-left: 2px solid transparent;
+  transition: all 0.15s;
+  text-decoration: none;
+  user-select: none;
+}
+
+.sidebar-item:hover {
+  color: var(--text-primary);
+  background: var(--accent-glow);
+}
+
+.sidebar-item.active {
+  color: var(--blue-300);
+  border-left-color: var(--blue-400);
+  background: rgba(59, 127, 212, 0.08);
+}
+
+.sidebar-icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.sidebar-item.active .sidebar-icon { opacity: 1; }
+
+/* ── MAIN CONTENT ── */
+main {
+  padding: 2rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 60px);
+}
+
+.section-panel {
+  display: none;
+}
+.section-panel.active {
+  display: block;
+}
+
+.panel-header {
+  margin-bottom: 1.75rem;
+}
+
+.panel-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.panel-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* ── FORM ELEMENTS ── */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group.span-2 { grid-column: span 2; }
+.form-group.span-3 { grid-column: span 3; }
+
+label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"],
+select,
+textarea {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="password"]:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--blue-400);
+  box-shadow: 0 0 0 3px rgba(59, 127, 212, 0.12);
+}
+
+select {
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a6380' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.25rem;
+}
+
+select option {
+  background: var(--navy-850);
+  color: var(--text-primary);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.85rem;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.toggle-row:hover { border-color: var(--border-hover); }
+
+.toggle-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toggle-label strong {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.toggle-label span {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.toggle-switch {
+  width: 36px;
+  height: 20px;
+  background: var(--navy-700);
+  border-radius: 10px;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 14px;
+  height: 14px;
+  background: var(--text-muted);
+  border-radius: 50%;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.toggle-row.on .toggle-switch {
+  background: var(--navy-600);
+  border-color: var(--blue-400);
+}
+
+.toggle-row.on .toggle-switch::after {
+  transform: translateX(16px);
+  background: var(--blue-300);
+}
+
+/* ── CARDS & SECTIONS ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--blue-300);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.subsection {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.subsection:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+/* ── UPSTREAM ENTRIES ── */
+.entry-list { display: flex; flex-direction: column; gap: 8px; }
+
+.entry-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 8px;
+  align-items: center;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+}
+
+.entry-item input {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.entry-item input:focus { box-shadow: none; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--blue-400);
+  color: #fff;
+  border-color: var(--blue-300);
+}
+
+.btn-primary:hover { background: var(--blue-300); }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: var(--border);
+}
+
+.btn-secondary:hover {
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+  background: var(--accent-glow);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--red-400);
+  border-color: transparent;
+  padding: 0.3rem 0.5rem;
+}
+
+.btn-danger:hover { background: rgba(239,68,68,0.1); }
+
+.btn-sm { padding: 0.3rem 0.7rem; font-size: 12px; }
+
+.btn-add {
+  background: transparent;
+  border: 1px dashed var(--border-hover);
+  color: var(--text-secondary);
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-add:hover { border-color: var(--blue-400); color: var(--blue-300); background: var(--accent-glow); }
+
+/* ── OUTPUT PANEL ── */
+.output-panel {
+  background: var(--navy-900);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+}
+
+.output-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.output-title {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--blue-300);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.output-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.output-tab {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 0.3rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.output-tab:hover { color: var(--text-secondary); background: var(--accent-glow); }
+.output-tab.active { color: var(--blue-300); background: rgba(59,127,212,0.1); border-color: var(--border); }
+
+.output-code {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.output-code pre {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  white-space: pre;
+  tab-size: 4;
+}
+
+/* Syntax highlighting */
+.kw { color: #7dd3fc; }
+.str { color: #86efac; }
+.num { color: #fde68a; }
+.cmt { color: var(--text-muted); font-style: italic; }
+.key { color: #c4b5fd; }
+.sec { color: var(--blue-300); font-weight: 700; }
+.val { color: #f9a8d4; }
+
+.output-actions {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ── BADGE ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.badge-blue { background: rgba(59,127,212,0.15); color: var(--blue-300); border: 1px solid rgba(59,127,212,0.25); }
+.badge-green { background: rgba(16,185,129,0.1); color: var(--green-300); border: 1px solid rgba(16,185,129,0.2); }
+.badge-amber { background: rgba(245,158,11,0.1); color: var(--amber-400); border: 1px solid rgba(245,158,11,0.2); }
+.badge-red { background: rgba(239,68,68,0.1); color: var(--red-300); border: 1px solid rgba(239,68,68,0.2); }
+
+/* ── STATUS BAR ── */
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.4rem 1.25rem;
+  background: rgba(2,11,26,0.8);
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green-400);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ── HINT ── */
+.hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--navy-700); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--navy-600); }
+
+/* ── LOCATION BLOCKS ── */
+.location-block {
+  background: rgba(5, 15, 34, 0.5);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.location-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.location-path {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--blue-300);
+  font-weight: 500;
+}
+
+/* ── RATE LIMIT ZONES ── */
+.zone-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+/* ── TOOLTIP ── */
+.info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--navy-700);
+  color: var(--text-muted);
+  font-size: 9px;
+  cursor: help;
+  border: 1px solid var(--border);
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+
+/* ── COPY SUCCESS ── */
+.copy-flash {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: var(--green-400);
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 999;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.25s;
+  pointer-events: none;
+}
+
+.copy-flash.show { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1200px) {
+  .app { grid-template-columns: 220px 1fr 320px; }
+}
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; padding: 0.5rem; }
+  .sidebar-section-label { display: none; }
+  .sidebar-item { border-left: none; border-bottom: 2px solid transparent; padding: 0.4rem 0.75rem; }
+  .sidebar-item.active { border-bottom-color: var(--blue-400); }
+  .output-panel { position: static; height: auto; }
+  .output-code { height: 400px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="https://ocasdev.com" class="logo" target="_blank">
+    <img src="https://cdn.ocasdev.com/public/img/ocasdev.png" alt="OCASDEV">
+    <div class="logo-sep"></div>
+    <span class="logo-tool">NGINX <span>Config</span> Generator</span>
+  </a>
+  <div class="header-actions">
+    <span class="badge badge-blue">v2.0</span>
+    <a href="https://nginx.org/en/docs/" target="_blank" class="btn btn-secondary btn-sm">Docs NGINX</a>
+  </div>
+</header>
+
+<div class="app">
+
+<!-- ── SIDEBAR ── -->
+<nav class="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Serveur</div>
+    <div class="sidebar-item active" onclick="showSection('global')" data-section="global">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 2c-2 2-3 4-3 6s1 4 3 6M8 2c2 2 3 4 3 6s-1 4-3 6M2 8h12"/></svg>
+      Paramètres globaux
+    </div>
+    <div class="sidebar-item" onclick="showSection('events')" data-section="events">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M4 6l4-4 4 4M4 10l4 4 4-4"/></svg>
+      Events & Worker
+    </div>
+    <div class="sidebar-item" onclick="showSection('http')" data-section="http">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="9" rx="1"/><path d="M5 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/></svg>
+      HTTP Global
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">VirtualHost</div>
+    <div class="sidebar-item" onclick="showSection('server')" data-section="server">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="4" rx="1"/><rect x="2" y="9" width="12" height="4" rx="1"/><circle cx="13" cy="5" r="1" fill="currentColor"/><circle cx="13" cy="11" r="1" fill="currentColor"/></svg>
+      Server Block
+    </div>
+    <div class="sidebar-item" onclick="showSection('ssl')" data-section="ssl">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L3 4v4c0 3 2.3 5.4 5 6 2.7-.6 5-3 5-6V4z"/></svg>
+      SSL / TLS
+    </div>
+    <div class="sidebar-item" onclick="showSection('locations')" data-section="locations">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a4 4 0 0 1 4 4c0 3-4 8-4 8S4 9 4 6a4 4 0 0 1 4-4z"/><circle cx="8" cy="6" r="1.5"/></svg>
+      Locations
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Proxy & Backend</div>
+    <div class="sidebar-item" onclick="showSection('upstream')" data-section="upstream">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><circle cx="2" cy="8" r="1.5"/><circle cx="14" cy="8" r="1.5"/><path d="M4 8h2M10 8h2"/></svg>
+      Upstream / LB
+    </div>
+    <div class="sidebar-item" onclick="showSection('proxy')" data-section="proxy">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M10 4l4 4-4 4"/></svg>
+      Proxy Pass
+    </div>
+    <div class="sidebar-item" onclick="showSection('cache')" data-section="cache">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="8" cy="5" rx="6" ry="2"/><path d="M2 5v6c0 1.1 2.7 2 6 2s6-.9 6-2V5"/><path d="M2 8c0 1.1 2.7 2 6 2s6-.9 6-2"/></svg>
+      Cache
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Sécurité</div>
+    <div class="sidebar-item" onclick="showSection('headers')" data-section="headers">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h8M2 12h6"/></svg>
+      Headers HTTP
+    </div>
+    <div class="sidebar-item" onclick="showSection('security')" data-section="security">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v4M8 11v.5"/></svg>
+      Sécurité & WAF
+    </div>
+    <div class="sidebar-item" onclick="showSection('ratelimit')" data-section="ratelimit">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v6l3 3"/><circle cx="8" cy="8" r="6"/></svg>
+      Rate Limiting
+    </div>
+    <div class="sidebar-item" onclick="showSection('auth')" data-section="auth">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="7" width="8" height="7" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>
+      Auth & Access
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Performance</div>
+    <div class="sidebar-item" onclick="showSection('gzip')" data-section="gzip">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8h8M8 4l-4 4 4 4"/></svg>
+      Compression
+    </div>
+    <div class="sidebar-item" onclick="showSection('static')" data-section="static">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h7l3 3v7H3z"/><path d="M10 3v3h3"/></svg>
+      Fichiers statiques
+    </div>
+    <div class="sidebar-item" onclick="showSection('logging')" data-section="logging">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h10M3 8h10M3 12h6"/></svg>
+      Logs
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Avancé</div>
+    <div class="sidebar-item" onclick="showSection('rewrites')" data-section="rewrites">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M6 4l-4 4 4 4M10 4l4 4-4 4"/></svg>
+      Rewrites & Redirects
+    </div>
+    <div class="sidebar-item" onclick="showSection('maps')" data-section="maps">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13V5l4-2 4 2 4-2v8l-4 2-4-2z"/></svg>
+      Map & Variables
+    </div>
+    <div class="sidebar-item" onclick="showSection('stream')" data-section="stream">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c0-3.3 2.7-6 6-6M14 8c0 3.3-2.7 6-6 6"/><path d="M12 5l2 3-2 3M4 5L2 8l2 3"/></svg>
+      Stream (TCP/UDP)
+    </div>
+    <div class="sidebar-item" onclick="showSection('healthcheck')" data-section="healthcheck">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h3l2-4 2 8 2-4h3"/></svg>
+      Health Check
+    </div>
+  </div>
+</nav>
+
+<!-- ── MAIN FORM ── -->
+<main id="main-content">
+
+  <!-- GLOBAL -->
+  <div class="section-panel active" id="panel-global">
+    <div class="panel-header">
+      <div class="panel-title">Paramètres globaux</div>
+      <div class="panel-desc">Configuration du bloc principal nginx.conf</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Worker & Process</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>user</label>
+          <input type="text" id="g_user" value="www-data" placeholder="www-data">
+        </div>
+        <div class="form-group">
+          <label>worker_processes</label>
+          <select id="g_worker_processes">
+            <option value="auto">auto</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="4">4</option>
+            <option value="8">8</option>
+            <option value="16">16</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>worker_rlimit_nofile</label>
+          <input type="number" id="g_rlimit_nofile" value="65535">
+        </div>
+        <div class="form-group">
+          <label>pid</label>
+          <input type="text" id="g_pid" value="/var/run/nginx.pid">
+        </div>
+        <div class="form-group">
+          <label>error_log</label>
+          <input type="text" id="g_error_log" value="/var/log/nginx/error.log">
+        </div>
+        <div class="form-group">
+          <label>error_log level</label>
+          <select id="g_error_level">
+            <option value="warn">warn</option>
+            <option value="error">error</option>
+            <option value="crit">crit</option>
+            <option value="notice">notice</option>
+            <option value="info">info</option>
+            <option value="debug">debug</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>worker_cpu_affinity</label>
+          <select id="g_cpu_affinity">
+            <option value="">— désactivé —</option>
+            <option value="auto">auto</option>
+            <option value="0101 1010">0101 1010 (4 cores)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>worker_priority</label>
+          <input type="number" id="g_priority" value="0" min="-20" max="19">
+          <span class="hint">-20 (haute) à 19 (basse)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">PCRe & Modules</div>
+      <div class="form-grid">
+        <div class="toggle-row" onclick="toggle(this)" id="g_pcre_jit">
+          <div class="toggle-label"><strong>pcre_jit on</strong><span>Accélère les regexps PCRE</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row" onclick="toggle(this)" id="g_debug_conn">
+          <div class="toggle-label"><strong>debug_connection</strong><span>Debug sélectif par IP</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row on" onclick="toggle(this)" id="g_aio">
+          <div class="toggle-label"><strong>aio threads</strong><span>Asynchronous I/O</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row on" onclick="toggle(this)" id="g_sendfile">
+          <div class="toggle-label"><strong>sendfile on</strong><span>Transfert fichiers noyau</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVENTS -->
+  <div class="section-panel" id="panel-events">
+    <div class="panel-header">
+      <div class="panel-title">Events & Worker</div>
+      <div class="panel-desc">Connexions réseau et I/O</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Event Loop</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>use</label>
+          <select id="ev_use">
+            <option value="epoll">epoll (Linux)</option>
+            <option value="kqueue">kqueue (BSD/macOS)</option>
+            <option value="select">select</option>
+            <option value="poll">poll</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>worker_connections</label>
+          <input type="number" id="ev_connections" value="1024">
+        </div>
+        <div class="toggle-row on" onclick="toggle(this)" id="ev_multi_accept">
+          <div class="toggle-label"><strong>multi_accept on</strong><span>Accepter plusieurs connexions</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row on" onclick="toggle(this)" id="ev_accept_mutex">
+          <div class="toggle-label"><strong>accept_mutex on</strong><span>Mutex pour accept()</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="form-group">
+          <label>accept_mutex_delay</label>
+          <input type="text" id="ev_mutex_delay" value="500ms">
+        </div>
+        <div class="form-group">
+          <label>debug_connection</label>
+          <input type="text" id="ev_debug_ip" placeholder="127.0.0.1 (facultatif)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HTTP -->
+  <div class="section-panel" id="panel-http">
+    <div class="panel-header">
+      <div class="panel-title">HTTP Global</div>
+      <div class="panel-desc">Configuration du bloc http{}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Timeouts & Keep-Alive</div>
+      <div class="form-grid form-grid-3">
+        <div class="form-group">
+          <label>keepalive_timeout</label>
+          <input type="text" id="h_keepalive_timeout" value="65s">
+        </div>
+        <div class="form-group">
+          <label>keepalive_requests</label>
+          <input type="number" id="h_keepalive_requests" value="100">
+        </div>
+        <div class="form-group">
+          <label>keepalive_time</label>
+          <input type="text" id="h_keepalive_time" value="1h">
+        </div>
+        <div class="form-group">
+          <label>client_header_timeout</label>
+          <input type="text" id="h_client_header_timeout" value="60s">
+        </div>
+        <div class="form-group">
+          <label>client_body_timeout</label>
+          <input type="text" id="h_client_body_timeout" value="60s">
+        </div>
+        <div class="form-group">
+          <label>send_timeout</label>
+          <input type="text" id="h_send_timeout" value="60s">
+        </div>
+        <div class="form-group">
+          <label>reset_timedout_connection</label>
+          <select id="h_reset_timeout">
+            <option value="on">on</option>
+            <option value="off">off</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>lingering_close</label>
+          <select id="h_lingering_close">
+            <option value="on">on</option>
+            <option value="off">off</option>
+            <option value="always">always</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>lingering_timeout</label>
+          <input type="text" id="h_lingering_timeout" value="5s">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Buffers & Tailles</div>
+      <div class="form-grid form-grid-3">
+        <div class="form-group">
+          <label>client_max_body_size</label>
+          <input type="text" id="h_body_size" value="10m">
+        </div>
+        <div class="form-group">
+          <label>client_body_buffer_size</label>
+          <input type="text" id="h_body_buffer" value="128k">
+        </div>
+        <div class="form-group">
+          <label>client_header_buffer_size</label>
+          <input type="text" id="h_header_buffer" value="1k">
+        </div>
+        <div class="form-group">
+          <label>large_client_header_buffers</label>
+          <input type="text" id="h_large_headers" value="4 8k">
+        </div>
+        <div class="form-group">
+          <label>output_buffers</label>
+          <input type="text" id="h_output_buffers" value="2 32k">
+        </div>
+        <div class="form-group">
+          <label>postpone_output</label>
+          <input type="number" id="h_postpone_output" value="1460">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Fichiers & Performance</div>
+      <div class="form-grid">
+        <div class="toggle-row on" onclick="toggle(this)" id="h_sendfile">
+          <div class="toggle-label"><strong>sendfile on</strong><span>Utilise sendfile() Linux</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row on" onclick="toggle(this)" id="h_tcp_nopush">
+          <div class="toggle-label"><strong>tcp_nopush on</strong><span>Optimise les paquets TCP</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row on" onclick="toggle(this)" id="h_tcp_nodelay">
+          <div class="toggle-label"><strong>tcp_nodelay on</strong><span>Désactive l'algorithme de Nagle</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row" onclick="toggle(this)" id="h_server_tokens">
+          <div class="toggle-label"><strong>server_tokens off</strong><span>Masquer la version NGINX</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="form-group">
+          <label>open_file_cache max</label>
+          <input type="text" id="h_file_cache" value="200000 inactive=20s">
+        </div>
+        <div class="form-group">
+          <label>open_file_cache_valid</label>
+          <input type="text" id="h_file_cache_valid" value="30s">
+        </div>
+        <div class="form-group">
+          <label>types_hash_max_size</label>
+          <input type="number" id="h_types_hash" value="2048">
+        </div>
+        <div class="form-group">
+          <label>server_names_hash_bucket_size</label>
+          <input type="number" id="h_server_names_hash" value="64">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Resolver DNS</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>resolver</label>
+          <input type="text" id="h_resolver" placeholder="8.8.8.8 1.1.1.1 valid=300s ipv6=off">
+        </div>
+        <div class="form-group">
+          <label>resolver_timeout</label>
+          <input type="text" id="h_resolver_timeout" placeholder="5s">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SERVER BLOCK -->
+  <div class="section-panel" id="panel-server">
+    <div class="panel-header">
+      <div class="panel-title">Server Block</div>
+      <div class="panel-desc">Configuration du virtualhost principal</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Ecoute & Domaine</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>server_name</label>
+          <input type="text" id="s_server_name" value="example.com www.example.com" placeholder="example.com">
+        </div>
+        <div class="form-group">
+          <label>root</label>
+          <input type="text" id="s_root" value="/var/www/html" placeholder="/var/www/html">
+        </div>
+        <div class="form-group">
+          <label>index</label>
+          <input type="text" id="s_index" value="index.html index.php" placeholder="index.html">
+        </div>
+        <div class="form-group">
+          <label>charset</label>
+          <select id="s_charset">
+            <option value="utf-8">utf-8</option>
+            <option value="off">off</option>
+            <option value="iso-8859-1">iso-8859-1</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top: 1rem;">
+        <div class="subsection">
+          <label style="margin-bottom: 0.5rem; display:block;">Listen ports</label>
+          <div id="listen-list" class="entry-list">
+            <div class="entry-item">
+              <input type="text" value="80" placeholder="Port">
+              <select style="background:var(--input-bg);border:none;color:var(--text-secondary);padding:0 4px;font-size:12px;">
+                <option>—</option>
+                <option>default_server</option>
+                <option>ssl</option>
+                <option>http2</option>
+                <option>ssl http2 default_server</option>
+              </select>
+              <select style="background:var(--input-bg);border:none;color:var(--text-secondary);padding:0 4px;font-size:12px;">
+                <option>IPv4</option>
+                <option>IPv6</option>
+                <option>Both</option>
+              </select>
+              <button class="btn btn-danger btn-sm" onclick="removeEntry(this)">✕</button>
+            </div>
+            <div class="entry-item">
+              <input type="text" value="443" placeholder="Port">
+              <select style="background:var(--input-bg);border:none;color:var(--text-secondary);padding:0 4px;font-size:12px;">
+                <option>ssl http2 default_server</option>
+                <option>—</option>
+                <option>ssl</option>
+                <option>http2</option>
+              </select>
+              <select style="background:var(--input-bg);border:none;color:var(--text-secondary);padding:0 4px;font-size:12px;">
+                <option>Both</option>
+                <option>IPv4</option>
+                <option>IPv6</option>
+              </select>
+              <button class="btn btn-danger btn-sm" onclick="removeEntry(this)">✕</button>
+            </div>
+          </div>
+          <button class="btn-add" onclick="addListen()">+ Ajouter un port</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Redirect HTTP → HTTPS</div>
+      <div class="toggle-row on" onclick="toggle(this)" id="s_redirect_https">
+        <div class="toggle-label"><strong>Redirection 301 vers HTTPS</strong><span>Ajoute un server{} dédié port 80</span></div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="toggle-row" onclick="toggle(this)" id="s_redirect_www">
+        <div class="toggle-label"><strong>Redirection non-www → www</strong><span>www.example.com</span></div>
+        <div class="toggle-switch"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Pages d'erreur</div>
+      <div id="error-pages" class="entry-list">
+        <div class="entry-item" style="grid-template-columns: 80px 1fr auto;">
+          <input type="text" value="404" placeholder="Code">
+          <input type="text" value="/404.html" placeholder="URI">
+          <button class="btn btn-danger btn-sm" onclick="removeEntry(this)">✕</button>
+        </div>
+        <div class="entry-item" style="grid-template-columns: 80px 1fr auto;">
+          <input type="text" value="500 502 503 504" placeholder="Code">
+          <input type="text" value="/50x.html" placeholder="URI">
+          <button class="btn btn-danger btn-sm" onclick="removeEntry(this)">✕</button>
+        </div>
+      </div>
+      <button class="btn-add" onclick="addErrorPage()">+ Ajouter une page d'erreur</button>
+    </div>
+  </div>
+
+  <!-- SSL -->
+  <div class="section-panel" id="panel-ssl">
+    <div class="panel-header">
+      <div class="panel-title">SSL / TLS</div>
+      <div class="panel-desc">Configuration HTTPS, certificats, protocoles</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Certificats</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>ssl_certificate</label>
+          <input type="text" id="ssl_cert" value="/etc/ssl/certs/example.com.crt">
+        </div>
+        <div class="form-group">
+          <label>ssl_certificate_key</label>
+          <input type="text" id="ssl_key" value="/etc/ssl/private/example.com.key">
+        </div>
+        <div class="form-group">
+          <label>ssl_trusted_certificate</label>
+          <input type="text" id="ssl_trusted" placeholder="/etc/ssl/certs/ca-chain.crt (OCSP)">
+        </div>
+        <div class="form-group">
+          <label>ssl_dhparam</label>
+          <input type="text" id="ssl_dhparam" placeholder="/etc/ssl/dhparam.pem">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Protocoles & Ciphers</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>ssl_protocols</label>
+          <select id="ssl_protocols">
+            <option value="TLSv1.3">TLSv1.3 uniquement (strict)</option>
+            <option value="TLSv1.2 TLSv1.3" selected>TLSv1.2 TLSv1.3 (recommandé)</option>
+            <option value="TLSv1.1 TLSv1.2 TLSv1.3">TLSv1.1 TLSv1.2 TLSv1.3</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ssl_prefer_server_ciphers</label>
+          <select id="ssl_prefer_ciphers">
+            <option value="on">on</option>
+            <option value="off">off</option>
+          </select>
+        </div>
+        <div class="form-group span-2">
+          <label>ssl_ciphers</label>
+          <select id="ssl_ciphers_preset" onchange="updateCiphers(this)">
+            <option value="modern">Modern (TLS 1.3 only)</option>
+            <option value="intermediate" selected>Intermediate (recommended)</option>
+            <option value="old">Old (max compat)</option>
+            <option value="custom">Custom</option>
+          </select>
+          <input type="text" id="ssl_ciphers" value="ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384" style="margin-top:6px; font-size:11px; font-family:var(--font-mono);">
+        </div>
+        <div class="form-group">
+          <label>ssl_ecdh_curve</label>
+          <input type="text" id="ssl_ecdh" value="X25519:prime256v1:secp384r1">
+        </div>
+        <div class="form-group">
+          <label>ssl_session_tickets</label>
+          <select id="ssl_session_tickets">
+            <option value="off">off (sécurité)</option>
+            <option value="on">on</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Session & Cache</div>
+      <div class="form-grid form-grid-3">
+        <div class="form-group">
+          <label>ssl_session_cache</label>
+          <input type="text" id="ssl_session_cache" value="shared:SSL:10m">
+        </div>
+        <div class="form-group">
+          <label>ssl_session_timeout</label>
+          <input type="text" id="ssl_session_timeout" value="1d">
+        </div>
+        <div class="form-group">
+          <label>ssl_buffer_size</label>
+          <input type="text" id="ssl_buffer_size" value="4k">
+        </div>
+        <div class="form-group">
+          <label>ssl_stapling</label>
+          <select id="ssl_stapling">
+            <option value="on">on (OCSP stapling)</option>
+            <option value="off">off</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ssl_stapling_verify</label>
+          <select id="ssl_stapling_verify">
+            <option value="on">on</option>
+            <option value="off">off</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ssl_early_data</label>
+          <select id="ssl_early_data">
+            <option value="off">off (sécurité)</option>
+            <option value="on">on (0-RTT)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Client Auth (mTLS)</div>
+      <div class="toggle-row" onclick="toggle(this)" id="ssl_mtls">
+        <div class="toggle-label"><strong>Mutual TLS (mTLS)</strong><span>Vérification certificat client</span></div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="form-grid" style="margin-top:0.75rem;">
+        <div class="form-group">
+          <label>ssl_client_certificate</label>
+          <input type="text" id="ssl_client_cert" placeholder="/etc/ssl/ca.crt">
+        </div>
+        <div class="form-group">
+          <label>ssl_verify_client</label>
+          <select id="ssl_verify_client">
+            <option value="optional">optional</option>
+            <option value="on">on</option>
+            <option value="off">off</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ssl_verify_depth</label>
+          <input type="number" id="ssl_verify_depth" value="2">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOCATIONS -->
+  <div class="section-panel" id="panel-locations">
+    <div class="panel-header">
+      <div class="panel-title">Locations</div>
+      <div class="panel-desc">Blocs location{} — routage des requêtes</div>
+    </div>
+
+    <div id="locations-container">
+      <div class="location-block" data-loc="0">
+        <div class="location-header">
+          <span class="location-path"># Location principale</span>
+          <button class="btn btn-danger btn-sm" onclick="removeLoc(this)">✕ Supprimer</button>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Modificateur</label>
+            <select onchange="updateGen()">
+              <option value="">exact prefix</option>
+              <option value="= ">=  (exact match)</option>
+              <option value="~ ">~  (regex case-sensitive)</option>
+              <option value="~* ">~* (regex insensible casse)</option>
+              <option value="^~ ">^~ (prefix prioritaire)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Path</label>
+            <input type="text" value="/" placeholder="/" oninput="updateGen()">
+          </div>
+          <div class="form-group">
+            <label>Type de handling</label>
+            <select onchange="updateGen()">
+              <option value="try_files">try_files</option>
+              <option value="proxy_pass">proxy_pass</option>
+              <option value="return">return / redirect</option>
+              <option value="alias">alias</option>
+              <option value="static">fichier statique</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Valeur</label>
+            <input type="text" value="$uri $uri/ =404" placeholder="$uri $uri/ =404" oninput="updateGen()">
+          </div>
+        </div>
+      </div>
+
+      <div class="location-block" data-loc="1">
+        <div class="location-header">
+          <span class="location-path"># PHP-FPM</span>
+          <button class="btn btn-danger btn-sm" onclick="removeLoc(this)">✕ Supprimer</button>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Modificateur</label>
+            <select onchange="updateGen()"><option value="~ ">~ (regex)</option><option value="">prefix</option><option value="= ">exact</option><option value="~* ">~* regex</option></select>
+          </div>
+          <div class="form-group">
+            <label>Path</label>
+            <input type="text" value="\.php$" oninput="updateGen()">
+          </div>
+          <div class="form-group">
+            <label>Type</label>
+            <select onchange="updateGen()"><option value="fastcgi">FastCGI / PHP-FPM</option><option value="proxy_pass">proxy_pass</option><option value="try_files">try_files</option></select>
+          </div>
+          <div class="form-group">
+            <label>FastCGI pass</label>
+            <input type="text" value="unix:/run/php/php8.2-fpm.sock" oninput="updateGen()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-add" onclick="addLocation()">+ Ajouter un bloc location</button>
+  </div>
+
+  <!-- UPSTREAM -->
+  <div class="section-panel" id="panel-upstream">
+    <div class="panel-header">
+      <div class="panel-title">Upstream & Load Balancing</div>
+      <div class="panel-desc">Groupes de serveurs backend et équilibrage de charge</div>
+    </div>
+
+    <div id="upstreams-container">
+      <div class="card" data-upstream="0">
+        <div class="card-title">
+          Groupe backend
+          <button class="btn btn-danger btn-sm" onclick="this.closest('.card').remove(); updateGen()" style="margin-left:auto">✕</button>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nom du groupe</label>
+            <input type="text" value="backend" placeholder="backend" oninput="updateGen()">
+          </div>
+          <div class="form-group">
+            <label>Algorithme</label>
+            <select onchange="updateGen()">
+              <option value="">Round Robin (défaut)</option>
+              <option value="least_conn;">least_conn</option>
+              <option value="ip_hash;">ip_hash</option>
+              <option value="hash $request_uri consistent;">hash $request_uri consistent</option>
+              <option value="random two least_conn;">random two least_conn</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>keepalive</label>
+            <input type="number" value="32" placeholder="32" oninput="updateGen()">
+          </div>
+          <div class="form-group">
+            <label>keepalive_requests</label>
+            <input type="number" value="100" oninput="updateGen()">
+          </div>
+          <div class="form-group">
+            <label>keepalive_timeout</label>
+            <input type="text" value="60s" oninput="updateGen()">
+          </div>
+        </div>
+        <div style="margin-top:0.75rem;">
+          <label style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:0.5rem;display:block;">Serveurs backend</label>
+          <div class="entry-list" id="servers-0">
+            <div class="entry-item" style="grid-template-columns: 1fr 80px 80px auto auto auto auto;">
+              <input type="text" value="10.0.0.1:8080" placeholder="host:port">
+              <input type="number" value="1" placeholder="weight" title="weight">
+              <input type="number" value="3" placeholder="max_fails" title="max_fails">
+              <input type="text" value="10s" placeholder="fail_timeout" title="fail_timeout">
+              <select style="background:var(--input-bg);border:none;color:var(--text-secondary);font-size:11px;padding:0 4px;">
+                <option>—</option>
+                <option>backup</option>
+                <option>down</option>
+              </select>
+              <input type="text" value="" placeholder="slow_start" title="slow_start (NGINX+)">
+              <button class="btn btn-danger btn-sm" onclick="removeEntry(this)">✕</button>
+            </div>
+            <div class="entry-item" style="grid-template-columns: 1fr 80px 80px auto auto auto auto;">
+              <input type="text" value="10.0.0.2:8080" placeholder="host:port">
+              <input type="number" value="1" placeholder="weight">
+              <input type="number" value="3" placeholder="max_fails">
+              <input type="text" value="10s" placeholder="fail_timeout">
+              <select style="background:var(--input-bg);border:none;color:var(--text-secondary);font-size:11px;padding:0 4px;">
+                <option>—</option><option>backup</option><option>down</option>
+              </select>
+              <input type="text" value="" placeholder="slow_start">
+              <button class="btn btn-danger btn-sm" onclick="removeEntry(this)">✕</button>
+            </div>
+          </div>
+          <button class="btn-add" onclick="addServer(this, '0')">+ Ajouter un serveur</button>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-secondary" onclick="addUpstream()" style="margin-top:0.5rem;">+ Nouvel upstream</button>
+  </div>
+
+  <!-- PROXY -->
+  <div class="section-panel" id="panel-proxy">
+    <div class="panel-header">
+      <div class="panel-title">Proxy Pass</div>
+      <div class="panel-desc">Reverse proxy et paramètres de forwarding</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Configuration proxy</div>
+      <div class="form-grid form-grid-3">
+        <div class="form-group">
+          <label>proxy_pass</label>
+          <input type="text" id="p_pass" value="http://backend" oninput="updateGen()">
+        </div>
+        <div class="form-group">
+          <label>proxy_http_version</label>
+          <select id="p_http_version">
+            <option value="1.1">1.1 (keepalive)</option>
+            <option value="1.0">1.0</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>proxy_read_timeout</label>
+          <input type="text" id="p_read_timeout" value="90s">
+        </div>
+        <div class="form-group">
+          <label>proxy_connect_timeout</label>
+          <input type="text" id="p_connect_timeout" value="90s">
+        </div>
+        <div class="form-group">
+          <label>proxy_send_timeout</label>
+          <input type="text" id="p_send_timeout" value="90s">
+        </div>
+        <div class="form-group">
+          <label>proxy_buffer_size</label>
+          <input type="text" id="p_buffer_size" value="128k">
+        </div>
+        <div class="form-group">
+          <label>proxy_buffers</label>
+          <input type="text" id="p_buffers" value="4 256k">
+        </div>
+        <div class="form-group">
+          <label>proxy_busy_buffers_size</label>
+          <input type="text" id="p_busy_buffers" value="256k">
+        </div>
+        <div class="form-group">
+          <label>proxy_max_temp_file_size</label>
+          <input type="text" id="p_temp_file" value="0">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Headers forwarded</div>
+      <div class="form-grid">
+        <div class="toggle-row on" onclick="toggle(this)" id="p_x_real_ip">
+          <div class="toggle-label"><strong>X-Real-IP</strong><span>$remote_addr</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row on" onclick="toggle(this)" id="p_x_forwarded_for">
+          <div class="toggle-label"><strong>X-Forwarded-For</strong><span>$proxy_add_x_forwarded_for</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row on" onclick="toggle(this)" id="p_x_forwarded_proto">
+          <div class="toggle-label"><strong>X-Forwarded-Proto</strong><span>$scheme</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row on" onclick="toggle(this)" id="p_host_header">
+          <div class="toggle-label"><strong>Host header</strong><span>$host</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row" onclick="toggle(this)" id="p_upgrade_websocket">
+          <div class="toggle-label"><strong>WebSocket upgrade</strong><span>Upgrade + Connection headers</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row" onclick="toggle(this)" id="p_intercept_errors">
+          <div class="toggle-label"><strong>proxy_intercept_errors</strong><span>Gérer erreurs backend</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:0.75rem;">
+        <label style="margin-bottom:0.5rem;display:block;">Headers personnalisés</label>
+        <div id="custom-headers" class="entry-list">
+          <div class="entry-item" style="grid-template-columns: 1fr 1fr auto;">
+            <input type="text" value="X-Forwarded-Host" placeholder="Header name">
+            <input type="text" value="$host" placeholder="Value">
+            <button class="btn btn-danger btn-sm" onclick="removeEntry(this)">✕</button>
+          </div>
+        </div>
+        <button class="btn-add" onclick="addCustomHeader()">+ Ajouter un header</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Proxy Next Upstream</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>proxy_next_upstream</label>
+          <input type="text" id="p_next_upstream" value="error timeout invalid_header http_500 http_502 http_503">
+          <span class="hint">Conditions pour passer au prochain backend</span>
+        </div>
+        <div class="form-group">
+          <label>proxy_next_upstream_tries</label>
+          <input type="number" id="p_next_tries" value="3">
+        </div>
+        <div class="form-group">
+          <label>proxy_next_upstream_timeout</label>
+          <input type="text" id="p_next_timeout" value="0">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CACHE -->
+  <div class="section-panel" id="panel-cache">
+    <div class="panel-header">
+      <div class="panel-title">Cache</div>
+      <div class="panel-desc">proxy_cache, fastcgi_cache, uwsgi_cache</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Proxy Cache</div>
+      <div class="toggle-row on" onclick="toggle(this)" id="cache_enabled">
+        <div class="toggle-label"><strong>Activer le proxy cache</strong><span>proxy_cache_path</span></div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="form-grid" style="margin-top:0.75rem;">
+        <div class="form-group">
+          <label>cache path</label>
+          <input type="text" id="cache_path" value="/var/cache/nginx">
+        </div>
+        <div class="form-group">
+          <label>keys_zone</label>
+          <input type="text" id="cache_zone" value="cache_one:10m">
+        </div>
+        <div class="form-group">
+          <label>levels</label>
+          <input type="text" id="cache_levels" value="1:2">
+        </div>
+        <div class="form-group">
+          <label>max_size</label>
+          <input type="text" id="cache_max_size" value="10g">
+        </div>
+        <div class="form-group">
+          <label>inactive</label>
+          <input type="text" id="cache_inactive" value="60m">
+        </div>
+        <div class="form-group">
+          <label>use_temp_path</label>
+          <select id="cache_use_temp">
+            <option value="off">off</option>
+            <option value="on">on</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>proxy_cache_valid 200</label>
+          <input type="text" id="cache_valid_200" value="1d">
+        </div>
+        <div class="form-group">
+          <label>proxy_cache_valid 404</label>
+          <input type="text" id="cache_valid_404" value="1m">
+        </div>
+        <div class="form-group">
+          <label>proxy_cache_min_uses</label>
+          <input type="number" id="cache_min_uses" value="1">
+        </div>
+        <div class="form-group">
+          <label>proxy_cache_key</label>
+          <input type="text" id="cache_key" value="$scheme$proxy_host$request_uri">
+        </div>
+        <div class="form-group">
+          <label>proxy_cache_lock</label>
+          <select id="cache_lock">
+            <option value="on">on</option>
+            <option value="off">off</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>proxy_cache_use_stale</label>
+          <input type="text" id="cache_use_stale" value="error timeout updating http_500 http_502 http_503 http_504">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">FastCGI Cache</div>
+      <div class="toggle-row" onclick="toggle(this)" id="fcgi_cache_enabled">
+        <div class="toggle-label"><strong>Activer le FastCGI cache</strong><span>Pour PHP-FPM</span></div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="form-grid" style="margin-top:0.75rem;">
+        <div class="form-group">
+          <label>fastcgi_cache_path</label>
+          <input type="text" id="fcgi_cache_path" value="/var/cache/nginx/fastcgi">
+        </div>
+        <div class="form-group">
+          <label>fastcgi_cache_key</label>
+          <input type="text" id="fcgi_cache_key" value="$scheme$request_method$host$request_uri">
+        </div>
+        <div class="form-group">
+          <label>fastcgi_cache_valid 200</label>
+          <input type="text" id="fcgi_cache_valid" value="60m">
+        </div>
+        <div class="form-group">
+          <label>fastcgi_cache_bypass</label>
+          <input type="text" id="fcgi_bypass" value="$no_cache">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADERS -->
+  <div class="section-panel" id="panel-headers">
+    <div class="panel-header">
+      <div class="panel-title">Headers HTTP</div>
+      <div class="panel-desc">Headers de sécurité, CORS, CSP</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Security Headers</div>
+      <div class="form-grid">
+        <div class="toggle-row on" onclick="toggle(this)" id="h_hsts">
+          <div class="toggle-label"><strong>HSTS</strong><span>Strict-Transport-Security</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="form-group">
+          <label>HSTS max-age</label>
+          <input type="text" id="h_hsts_age" value="31536000; includeSubDomains; preload">
+        </div>
+        <div class="toggle-row on" onclick="toggle(this)" id="h_xframe">
+          <div class="toggle-label"><strong>X-Frame-Options</strong><span>Clickjacking protection</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="form-group">
+          <label>X-Frame-Options value</label>
+          <select id="h_xframe_val">
+            <option value="DENY">DENY</option>
+            <option value="SAMEORIGIN">SAMEORIGIN</option>
+          </select>
+        </div>
+        <div class="toggle-row on" onclick="toggle(this)" id="h_xctype">
+          <div class="toggle-label"><strong>X-Content-Type-Options</strong><span>nosniff</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row on" onclick="toggle(this)" id="h_xxss">
+          <div class="toggle-label"><strong>X-XSS-Protection</strong><span>1; mode=block</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row on" onclick="toggle(this)" id="h_referrer">
+          <div class="toggle-label"><strong>Referrer-Policy</strong><span>strict-origin-when-cross-origin</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row" onclick="toggle(this)" id="h_permissions">
+          <div class="toggle-label"><strong>Permissions-Policy</strong><span>camera, microphone, geolocation</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Content Security Policy</div>
+      <div class="toggle-row" onclick="toggle(this)" id="h_csp">
+        <div class="toggle-label"><strong>Activer CSP</strong><span>Content-Security-Policy</span></div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="form-group" style="margin-top:0.75rem;">
+        <label>CSP directive</label>
+        <textarea id="h_csp_val" rows="3">default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;</textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">CORS</div>
+      <div class="toggle-row" onclick="toggle(this)" id="h_cors">
+        <div class="toggle-label"><strong>Activer CORS</strong><span>Cross-Origin Resource Sharing</span></div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="form-grid" style="margin-top:0.75rem;">
+        <div class="form-group">
+          <label>Access-Control-Allow-Origin</label>
+          <input type="text" id="h_cors_origin" value="*">
+        </div>
+        <div class="form-group">
+          <label>Access-Control-Allow-Methods</label>
+          <input type="text" id="h_cors_methods" value="GET, POST, PUT, DELETE, OPTIONS">
+        </div>
+        <div class="form-group">
+          <label>Access-Control-Allow-Headers</label>
+          <input type="text" id="h_cors_headers" value="Authorization, Content-Type, Accept">
+        </div>
+        <div class="form-group">
+          <label>Access-Control-Max-Age</label>
+          <input type="number" id="h_cors_age" value="86400">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Headers personnalisés</div>
+      <div id="custom-resp-headers" class="entry-list">
+        <div class="entry-item" style="grid-template-columns: 1fr 1fr auto;">
+          <input type="text" value="X-Powered-By" placeholder="Header">
+          <input type="text" value="" placeholder="Value (vide = remove)">
+          <button class="btn btn-danger btn-sm" onclick="removeEntry(this)">✕</button>
+        </div>
+      </div>
+      <button class="btn-add" onclick="addRespHeader()">+ Ajouter un header</button>
+    </div>
+  </div>
+
+  <!-- SECURITY -->
+  <div class="section-panel" id="panel-security">
+    <div class="panel-header">
+      <div class="panel-title">Sécurité & WAF basique</div>
+      <div class="panel-desc">Restrictions d'accès, blocages, protections</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Masquage & Hardening</div>
+      <div class="form-grid">
+        <div class="toggle-row on" onclick="toggle(this)" id="sec_server_tokens">
+          <div class="toggle-label"><strong>server_tokens off</strong><span>Masquer version NGINX</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row" onclick="toggle(this)" id="sec_hide_php">
+          <div class="toggle-label"><strong>Masquer X-Powered-By</strong><span>more_clear_headers PHP</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row" onclick="toggle(this)" id="sec_limit_methods">
+          <div class="toggle-label"><strong>Limiter les méthodes HTTP</strong><span>Bloquer DELETE, TRACE, OPTIONS...</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="form-group">
+          <label>Méthodes autorisées</label>
+          <input type="text" id="sec_allowed_methods" value="GET HEAD POST">
+        </div>
+        <div class="toggle-row" onclick="toggle(this)" id="sec_block_scanners">
+          <div class="toggle-label"><strong>Bloquer user-agents malveillants</strong><span>Scanners, bots</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row" onclick="toggle(this)" id="sec_block_hotlink">
+          <div class="toggle-label"><strong>Bloquer le hotlinking</strong><span>Anti-leech images</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">IP Whitelist / Blacklist</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>IPs autorisées (whitelist)</label>
+          <textarea id="sec_allow_ips" rows="3" placeholder="127.0.0.1&#10;10.0.0.0/8&#10;192.168.1.0/24"></textarea>
+          <span class="hint">Une IP/CIDR par ligne</span>
+        </div>
+        <div class="form-group">
+          <label>IPs bloquées (blacklist)</label>
+          <textarea id="sec_deny_ips" rows="3" placeholder="1.2.3.4&#10;5.6.7.0/24"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Blocage chemins sensibles</div>
+      <div class="form-grid">
+        <div class="toggle-row on" onclick="toggle(this)" id="sec_block_git">
+          <div class="toggle-label"><strong>Bloquer .git, .env, .htaccess</strong><span>Fichiers secrets exposés</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row on" onclick="toggle(this)" id="sec_block_dotfiles">
+          <div class="toggle-label"><strong>Bloquer dotfiles</strong><span>Tous fichiers commençant par .</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row" onclick="toggle(this)" id="sec_block_xmlrpc">
+          <div class="toggle-label"><strong>Bloquer xmlrpc.php</strong><span>WordPress XMLRPC</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row" onclick="toggle(this)" id="sec_block_backup">
+          <div class="toggle-label"><strong>Bloquer fichiers backup</strong><span>.bak, .old, .sql, .zip</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RATE LIMIT -->
+  <div class="section-panel" id="panel-ratelimit">
+    <div class="panel-header">
+      <div class="panel-title">Rate Limiting</div>
+      <div class="panel-desc">limit_req_zone, limit_conn_zone</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Zones limit_req</div>
+      <div id="req-zones">
+        <div class="zone-row">
+          <input type="text" value="$binary_remote_addr" placeholder="key">
+          <input type="text" value="zone=api:10m rate=10r/s" placeholder="zone=name:size rate=Xr/s">
+          <select style="background:var(--input-bg);border:1px solid var(--border);color:var(--text-secondary);padding:0 8px;border-radius:6px;font-size:12px;height:36px;">
+            <option>limit_req_zone</option>
+          </select>
+          <button class="btn btn-danger btn-sm" onclick="removeEntry(this.parentElement)">✕</button>
+        </div>
+        <div class="zone-row">
+          <input type="text" value="$binary_remote_addr" placeholder="key">
+          <input type="text" value="zone=login:10m rate=1r/s" placeholder="zone=name:size rate=Xr/s">
+          <select style="background:var(--input-bg);border:1px solid var(--border);color:var(--text-secondary);padding:0 8px;border-radius:6px;font-size:12px;height:36px;">
+            <option>limit_req_zone</option>
+          </select>
+          <button class="btn btn-danger btn-sm" onclick="removeEntry(this.parentElement)">✕</button>
+        </div>
+      </div>
+      <button class="btn-add" onclick="addReqZone()">+ Ajouter une zone</button>
+
+      <div style="margin-top:1rem;">
+        <label style="margin-bottom:0.5rem;display:block;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);">Usage dans location</label>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>zone utilisée</label>
+            <input type="text" id="rl_zone_use" value="api" placeholder="api">
+          </div>
+          <div class="form-group">
+            <label>burst</label>
+            <input type="number" id="rl_burst" value="20">
+          </div>
+          <div class="form-group">
+            <label>nodelay / delay</label>
+            <select id="rl_nodelay">
+              <option value="nodelay">nodelay</option>
+              <option value="">delay (défaut)</option>
+              <option value="delay=5">delay=5</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Zones limit_conn</div>
+      <div id="conn-zones">
+        <div class="zone-row">
+          <input type="text" value="$binary_remote_addr" placeholder="key">
+          <input type="text" value="zone=addr:10m" placeholder="zone=name:size">
+          <select style="background:var(--input-bg);border:1px solid var(--border);color:var(--text-secondary);padding:0 8px;border-radius:6px;font-size:12px;height:36px;">
+            <option>limit_conn_zone</option>
+          </select>
+          <button class="btn btn-danger btn-sm" onclick="removeEntry(this.parentElement)">✕</button>
+        </div>
+      </div>
+      <button class="btn-add" onclick="addConnZone()">+ Ajouter une zone conn</button>
+      <div class="form-grid" style="margin-top:0.75rem;">
+        <div class="form-group">
+          <label>limit_conn addr</label>
+          <input type="number" id="rl_conn_limit" value="10" placeholder="10">
+          <span class="hint">Connexions simultanées max par IP</span>
+        </div>
+        <div class="form-group">
+          <label>limit_req_status</label>
+          <input type="number" id="rl_req_status" value="429">
+        </div>
+        <div class="form-group">
+          <label>limit_conn_status</label>
+          <input type="number" id="rl_conn_status" value="503">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTH -->
+  <div class="section-panel" id="panel-auth">
+    <div class="panel-header">
+      <div class="panel-title">Auth & Access Control</div>
+      <div class="panel-desc">Basic Auth, JWT, geo IP</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Basic Auth</div>
+      <div class="toggle-row" onclick="toggle(this)" id="auth_basic">
+        <div class="toggle-label"><strong>HTTP Basic Auth</strong><span>auth_basic + htpasswd</span></div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="form-grid" style="margin-top:0.75rem;">
+        <div class="form-group">
+          <label>auth_basic realm</label>
+          <input type="text" id="auth_basic_realm" value="Restricted Area">
+        </div>
+        <div class="form-group">
+          <label>auth_basic_user_file</label>
+          <input type="text" id="auth_basic_file" value="/etc/nginx/.htpasswd">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Auth Subrequest (auth_request)</div>
+      <div class="toggle-row" onclick="toggle(this)" id="auth_subrequest">
+        <div class="toggle-label"><strong>auth_request</strong><span>Délègue l'auth à un endpoint</span></div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="form-grid" style="margin-top:0.75rem;">
+        <div class="form-group">
+          <label>auth_request endpoint</label>
+          <input type="text" id="auth_req_endpoint" value="/auth" placeholder="/auth">
+        </div>
+        <div class="form-group">
+          <label>auth_request_set header</label>
+          <input type="text" id="auth_req_set" value="$auth_status $upstream_status">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Geo IP & Variables</div>
+      <div class="toggle-row" onclick="toggle(this)" id="auth_geo">
+        <div class="toggle-label"><strong>Module geo</strong><span>Accès par IP/pays</span></div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="form-group" style="margin-top:0.75rem;">
+        <label>Plages autorisées (geo)</label>
+        <textarea id="auth_geo_ips" rows="4" placeholder="default 0;&#10;127.0.0.1 1;&#10;10.0.0.0/8 1;&#10;192.168.0.0/16 1;"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- GZIP -->
+  <div class="section-panel" id="panel-gzip">
+    <div class="panel-header">
+      <div class="panel-title">Compression</div>
+      <div class="panel-desc">gzip, brotli, zstd</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Gzip</div>
+      <div class="form-grid">
+        <div class="toggle-row on" onclick="toggle(this)" id="gz_enabled">
+          <div class="toggle-label"><strong>gzip on</strong><span>Activer la compression</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row on" onclick="toggle(this)" id="gz_static">
+          <div class="toggle-label"><strong>gzip_static on</strong><span>Servir fichiers .gz pré-compressés</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row on" onclick="toggle(this)" id="gz_proxied">
+          <div class="toggle-label"><strong>gzip_proxied any</strong><span>Compresser réponses proxy</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row on" onclick="toggle(this)" id="gz_vary">
+          <div class="toggle-label"><strong>gzip_vary on</strong><span>Ajoute Vary: Accept-Encoding</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="form-group">
+          <label>gzip_comp_level</label>
+          <select id="gz_level">
+            <option value="1">1 (rapide)</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6" selected>6 (recommandé)</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9 (max)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>gzip_min_length</label>
+          <input type="text" id="gz_min_length" value="256">
+        </div>
+        <div class="form-group">
+          <label>gzip_buffers</label>
+          <input type="text" id="gz_buffers" value="16 8k">
+        </div>
+        <div class="form-group">
+          <label>gzip_http_version</label>
+          <select id="gz_http_version">
+            <option value="1.1">1.1</option>
+            <option value="1.0">1.0</option>
+          </select>
+        </div>
+        <div class="form-group span-2">
+          <label>gzip_types</label>
+          <input type="text" id="gz_types" value="text/plain text/css text/xml application/json application/javascript application/xml+rss application/atom+xml image/svg+xml">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Brotli (module ngx_brotli)</div>
+      <div class="toggle-row" onclick="toggle(this)" id="br_enabled">
+        <div class="toggle-label"><strong>brotli on</strong><span>Nécessite ngx_brotli</span></div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="form-grid" style="margin-top:0.75rem;">
+        <div class="form-group">
+          <label>brotli_comp_level</label>
+          <select id="br_level">
+            <option value="4">4</option>
+            <option value="6" selected>6</option>
+            <option value="9">9</option>
+            <option value="11">11 (max)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>brotli_static</label>
+          <select id="br_static">
+            <option value="on">on</option>
+            <option value="off">off</option>
+          </select>
+        </div>
+        <div class="form-group span-2">
+          <label>brotli_types</label>
+          <input type="text" id="br_types" value="text/plain text/css application/javascript application/json image/svg+xml">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATIC -->
+  <div class="section-panel" id="panel-static">
+    <div class="panel-header">
+      <div class="panel-title">Fichiers Statiques</div>
+      <div class="panel-desc">Expires, cache-control, types MIME</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Expires & Cache-Control</div>
+      <div class="toggle-row on" onclick="toggle(this)" id="st_expires">
+        <div class="toggle-label"><strong>Activer expires</strong><span>Cache navigateur</span></div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="form-grid" style="margin-top:0.75rem;">
+        <div class="form-group">
+          <label>Images (jpg, png, gif, webp, avif)</label>
+          <input type="text" id="st_img_expires" value="30d">
+        </div>
+        <div class="form-group">
+          <label>CSS & JS</label>
+          <input type="text" id="st_css_expires" value="7d">
+        </div>
+        <div class="form-group">
+          <label>Fonts (woff, woff2, ttf)</label>
+          <input type="text" id="st_font_expires" value="1y">
+        </div>
+        <div class="form-group">
+          <label>HTML</label>
+          <input type="text" id="st_html_expires" value="1h">
+        </div>
+        <div class="form-group">
+          <label>Données (json, xml)</label>
+          <input type="text" id="st_data_expires" value="1d">
+        </div>
+        <div class="form-group">
+          <label>PDFs & Docs</label>
+          <input type="text" id="st_doc_expires" value="7d">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Options</div>
+      <div class="form-grid">
+        <div class="toggle-row on" onclick="toggle(this)" id="st_autoindex">
+          <div class="toggle-label"><strong>autoindex off</strong><span>Désactiver la navigation répertoires</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row" onclick="toggle(this)" id="st_log_not_found">
+          <div class="toggle-label"><strong>log_not_found off</strong><span>Supprimer logs 404 statiques</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="form-group">
+          <label>directio</label>
+          <input type="text" id="st_directio" value="4m" placeholder="4m ou off">
+          <span class="hint">Direct I/O pour fichiers > seuil</span>
+        </div>
+        <div class="form-group">
+          <label>aio</label>
+          <select id="st_aio">
+            <option value="threads">threads</option>
+            <option value="on">on</option>
+            <option value="off">off</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGGING -->
+  <div class="section-panel" id="panel-logging">
+    <div class="panel-header">
+      <div class="panel-title">Logs</div>
+      <div class="panel-desc">access_log, error_log, formats</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Access Log</div>
+      <div class="toggle-row on" onclick="toggle(this)" id="log_access">
+        <div class="toggle-label"><strong>access_log activé</strong><span>Journalisation des requêtes</span></div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="form-grid" style="margin-top:0.75rem;">
+        <div class="form-group">
+          <label>access_log path</label>
+          <input type="text" id="log_access_path" value="/var/log/nginx/access.log">
+        </div>
+        <div class="form-group">
+          <label>Format</label>
+          <select id="log_format_select" onchange="updateLogFormat()">
+            <option value="combined">combined (défaut)</option>
+            <option value="main">main</option>
+            <option value="json">JSON structured</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        <div class="form-group span-2">
+          <label>log_format personnalisé</label>
+          <textarea id="log_format_val" rows="4">'$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $request_time $upstream_response_time'</textarea>
+        </div>
+        <div class="form-group">
+          <label>buffer</label>
+          <input type="text" id="log_buffer" value="32k">
+        </div>
+        <div class="form-group">
+          <label>flush</label>
+          <input type="text" id="log_flush" value="5m">
+        </div>
+        <div class="toggle-row" onclick="toggle(this)" id="log_gzip">
+          <div class="toggle-label"><strong>Compression logs gzip</strong><span>gzip=5</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row" onclick="toggle(this)" id="log_if">
+          <div class="toggle-label"><strong>Exclure codes 2xx/3xx</strong><span>if=$loggable (accès erreurs seulement)</span></div>
+          <div class="toggle-switch"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REWRITES -->
+  <div class="section-panel" id="panel-rewrites">
+    <div class="panel-header">
+      <div class="panel-title">Rewrites & Redirects</div>
+      <div class="panel-desc">rewrite, return, try_files</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Règles rewrite</div>
+      <div id="rewrite-rules" class="entry-list">
+        <div class="entry-item" style="grid-template-columns: 1fr 1fr auto auto;">
+          <input type="text" value="^/old-page$" placeholder="Regex source">
+          <input type="text" value="/new-page" placeholder="Destination">
+          <select style="background:var(--input-bg);border:none;color:var(--text-secondary);padding:0 4px;font-size:12px;">
+            <option>permanent</option><option>redirect</option><option>last</option><option>break</option>
+          </select>
+          <button class="btn btn-danger btn-sm" onclick="removeEntry(this)">✕</button>
+        </div>
+      </div>
+      <button class="btn-add" onclick="addRewrite()">+ Ajouter une règle</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Retours & Redirections rapides</div>
+      <div id="return-rules" class="entry-list">
+        <div class="entry-item" style="grid-template-columns: 80px 1fr auto;">
+          <input type="text" value="301" placeholder="Code">
+          <input type="text" value="https://$host$request_uri" placeholder="URL ou message">
+          <button class="btn btn-danger btn-sm" onclick="removeEntry(this)">✕</button>
+        </div>
+      </div>
+      <button class="btn-add" onclick="addReturn()">+ Ajouter un return</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Try Files</div>
+      <div class="form-group">
+        <label>try_files directive</label>
+        <input type="text" id="rw_try_files" value="$uri $uri/ /index.php?$query_string">
+      </div>
+    </div>
+  </div>
+
+  <!-- MAPS -->
+  <div class="section-panel" id="panel-maps">
+    <div class="panel-header">
+      <div class="panel-title">Map & Variables</div>
+      <div class="panel-desc">Blocs map{} et variables personnalisées</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Variables map</div>
+      <div id="map-blocks">
+        <div class="card" style="margin-bottom:0.75rem;border-color:rgba(59,127,212,0.1);">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Source variable</label>
+              <input type="text" value="$http_upgrade" placeholder="$variable">
+            </div>
+            <div class="form-group">
+              <label>Destination variable</label>
+              <input type="text" value="$connection_upgrade" placeholder="$new_variable">
+            </div>
+            <div class="form-group span-2">
+              <label>Valeurs (format: valeur résultat)</label>
+              <textarea rows="3">default upgrade
+'' close</textarea>
+            </div>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="this.closest('.card').remove()" style="margin-top:0.5rem;">Supprimer ce bloc</button>
+        </div>
+      </div>
+      <button class="btn-add" onclick="addMapBlock()">+ Ajouter un bloc map</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Variables split_clients</div>
+      <div class="toggle-row" onclick="toggle(this)" id="map_split">
+        <div class="toggle-label"><strong>split_clients (A/B testing)</strong><span>Distribution aléatoire</span></div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="form-group" style="margin-top:0.75rem;">
+        <label>Définition split_clients</label>
+        <textarea id="map_split_val" rows="4">"${remote_addr}${http_user_agent}" $variant
+50%   variant_a
+50%   variant_b</textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- STREAM -->
+  <div class="section-panel" id="panel-stream">
+    <div class="panel-header">
+      <div class="panel-title">Stream (TCP/UDP)</div>
+      <div class="panel-desc">Proxy de couche 4 — module ngx_stream</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Stream proxy</div>
+      <div class="toggle-row on" onclick="toggle(this)" id="stream_enabled">
+        <div class="toggle-label"><strong>Activer le bloc stream{}</strong><span>Proxy TCP/UDP</span></div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div id="stream-servers">
+        <div class="card" style="margin-top:0.75rem;border-color:rgba(59,127,212,0.1);">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>listen</label>
+              <input type="text" value="12345" placeholder="port ou host:port">
+            </div>
+            <div class="form-group">
+              <label>protocole</label>
+              <select>
+                <option>tcp</option>
+                <option>udp</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>proxy_pass (upstream)</label>
+              <input type="text" value="backend_stream" placeholder="nom upstream ou host:port">
+            </div>
+            <div class="form-group">
+              <label>proxy_timeout</label>
+              <input type="text" value="600s">
+            </div>
+            <div class="form-group">
+              <label>proxy_connect_timeout</label>
+              <input type="text" value="1s">
+            </div>
+            <div class="toggle-row" onclick="toggle(this)">
+              <div class="toggle-label"><strong>ssl_preread</strong><span>Lire SNI sans décrypter (SSL passthrough)</span></div>
+              <div class="toggle-switch"></div>
+            </div>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="this.closest('.card').remove()" style="margin-top:0.5rem;">Supprimer ce server</button>
+        </div>
+      </div>
+      <button class="btn-add" onclick="addStreamServer()">+ Ajouter un server stream</button>
+    </div>
+  </div>
+
+  <!-- HEALTH CHECK -->
+  <div class="section-panel" id="panel-healthcheck">
+    <div class="panel-header">
+      <div class="panel-title">Health Check</div>
+      <div class="panel-desc">Vérification d'état des backends (NGINX+)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Passive Health Check</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>max_fails</label>
+          <input type="number" id="hc_max_fails" value="3">
+          <span class="hint">Échecs avant mise hors ligne</span>
+        </div>
+        <div class="form-group">
+          <label>fail_timeout</label>
+          <input type="text" id="hc_fail_timeout" value="30s">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Active Health Check (NGINX Plus)</div>
+      <div class="toggle-row" onclick="toggle(this)" id="hc_active">
+        <div class="toggle-label"><strong>health_check actif</strong><span>Nécessite NGINX Plus ou ngx_healthcheck</span></div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="form-grid" style="margin-top:0.75rem;">
+        <div class="form-group">
+          <label>interval</label>
+          <input type="text" id="hc_interval" value="5s">
+        </div>
+        <div class="form-group">
+          <label>fails</label>
+          <input type="number" id="hc_fails" value="3">
+        </div>
+        <div class="form-group">
+          <label>passes</label>
+          <input type="number" id="hc_passes" value="2">
+        </div>
+        <div class="form-group">
+          <label>uri</label>
+          <input type="text" id="hc_uri" value="/health">
+        </div>
+        <div class="form-group">
+          <label>match condition</label>
+          <input type="text" id="hc_match" value="status 200; header Content-Type = application/json;">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Status Page (ngx_http_stub_status)</div>
+      <div class="toggle-row" onclick="toggle(this)" id="hc_stub_status">
+        <div class="toggle-label"><strong>stub_status activé</strong><span>Page /nginx_status</span></div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="form-group" style="margin-top:0.75rem;">
+        <label>Location</label>
+        <input type="text" id="hc_status_uri" value="/nginx_status">
+      </div>
+      <div class="form-group">
+        <label>Restreindre à</label>
+        <input type="text" id="hc_status_allow" value="127.0.0.1 ::1">
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── OUTPUT ── -->
+<aside class="output-panel">
+  <div class="output-header">
+    <span class="output-title">nginx.conf — Généré</span>
+    <span id="line-count" class="badge badge-blue">0 lignes</span>
+  </div>
+  <div class="output-tabs">
+    <div class="output-tab active" onclick="switchTab('nginx')">nginx.conf</div>
+    <div class="output-tab" onclick="switchTab('sites')">sites-available</div>
+    <div class="output-tab" onclick="switchTab('upstream-conf')">upstream.conf</div>
+    <div class="output-tab" onclick="switchTab('stream-conf')">stream.conf</div>
+  </div>
+  <div class="output-code" id="output-code">
+    <pre id="output-pre"></pre>
+  </div>
+  <div class="status-bar">
+    <div class="status-dot"></div>
+    <span id="status-text">Configuration valide</span>
+  </div>
+  <div class="output-actions">
+    <button class="btn btn-primary" onclick="copyConfig()">Copier</button>
+    <button class="btn btn-secondary" onclick="downloadConfig()">Télécharger</button>
+    <button class="btn btn-secondary" onclick="updateGen()">Régénérer</button>
+  </div>
+</aside>
+
+</div>
+
+<div class="copy-flash" id="copy-flash">✓ Copié dans le presse-papier</div>
+
+<script>
+let activeTab = 'nginx';
+
+function toggle(el) {
+  el.classList.toggle('on');
+  updateGen();
+}
+
+function isOn(id) {
+  const el = document.getElementById(id);
+  return el ? el.classList.contains('on') : false;
+}
+
+function v(id, fallback = '') {
+  const el = document.getElementById(id);
+  if (!el) return fallback;
+  return el.value || fallback;
+}
+
+function showSection(name) {
+  document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  const panel = document.getElementById('panel-' + name);
+  if (panel) panel.classList.add('active');
+  document.querySelectorAll('.sidebar-item').forEach(i => {
+    if (i.getAttribute('data-section') === name) i.classList.add('active');
+  });
+  updateGen();
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.output-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  updateGen();
+}
+
+function removeEntry(el) {
+  el.closest('.entry-item') ? el.closest('.entry-item').remove() : el.remove();
+  updateGen();
+}
+
+function removeLoc(btn) {
+  btn.closest('.location-block').remove();
+  updateGen();
+}
+
+function addListen() {
+  const list = document.getElementById('listen-list');
+  const item = document.createElement('div');
+  item.className = 'entry-item';
+  item.innerHTML = `<input type="text" value="8080" placeholder="Port"><select style="background:var(--input-bg);border:none;color:var(--text-secondary);padding:0 4px;font-size:12px;"><option>—</option><option>default_server</option><option>ssl</option><option>http2</option><option>ssl http2</option></select><select style="background:var(--input-bg);border:none;color:var(--text-secondary);padding:0 4px;font-size:12px;"><option>IPv4</option><option>IPv6</option><option>Both</option></select><button class="btn btn-danger btn-sm" onclick="removeEntry(this)">✕</button>`;
+  list.appendChild(item);
+  updateGen();
+}
+
+function addErrorPage() {
+  const list = document.getElementById('error-pages');
+  const item = document.createElement('div');
+  item.className = 'entry-item';
+  item.style.gridTemplateColumns = '80px 1fr auto';
+  item.innerHTML = `<input type="text" value="403" placeholder="Code"><input type="text" value="/403.html" placeholder="URI"><button class="btn btn-danger btn-sm" onclick="removeEntry(this)">✕</button>`;
+  list.appendChild(item);
+  updateGen();
+}
+
+function addLocation() {
+  const container = document.getElementById('locations-container');
+  const idx = Date.now();
+  const block = document.createElement('div');
+  block.className = 'location-block';
+  block.setAttribute('data-loc', idx);
+  block.innerHTML = `<div class="location-header"><span class="location-path"># Nouveau bloc location</span><button class="btn btn-danger btn-sm" onclick="removeLoc(this)">✕ Supprimer</button></div><div class="form-grid"><div class="form-group"><label>Modificateur</label><select onchange="updateGen()"><option value="">prefix</option><option value="= ">= exact</option><option value="~ ">~ regex</option><option value="~* ">~* regex</option><option value="^~ ">^~ prefix prio</option></select></div><div class="form-group"><label>Path</label><input type="text" value="/api/" oninput="updateGen()"></div><div class="form-group"><label>Type</label><select onchange="updateGen()"><option value="proxy_pass">proxy_pass</option><option value="try_files">try_files</option><option value="return">return</option><option value="alias">alias</option></select></div><div class="form-group"><label>Valeur</label><input type="text" value="http://backend" oninput="updateGen()"></div></div>`;
+  container.appendChild(block);
+  updateGen();
+}
+
+function addUpstream() {
+  const container = document.getElementById('upstreams-container');
+  const idx = Date.now();
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.setAttribute('data-upstream', idx);
+  card.innerHTML = `<div class="card-title">Groupe backend <button class="btn btn-danger btn-sm" onclick="this.closest('.card').remove(); updateGen()" style="margin-left:auto">✕</button></div><div class="form-grid"><div class="form-group"><label>Nom</label><input type="text" value="backend${idx%100}" oninput="updateGen()"></div><div class="form-group"><label>Algorithme</label><select onchange="updateGen()"><option value="">Round Robin</option><option value="least_conn;">least_conn</option><option value="ip_hash;">ip_hash</option><option value="hash $request_uri consistent;">hash consistent</option></select></div><div class="form-group"><label>keepalive</label><input type="number" value="32" oninput="updateGen()"></div></div><div style="margin-top:0.75rem;"><div class="entry-list" id="servers-${idx}"><div class="entry-item" style="grid-template-columns:1fr 80px 80px auto auto auto auto;"><input type="text" value="127.0.0.1:8080" placeholder="host:port"><input type="number" value="1" placeholder="weight"><input type="number" value="3" placeholder="max_fails"><input type="text" value="10s" placeholder="fail_timeout"><select style="background:var(--input-bg);border:none;color:var(--text-secondary);font-size:11px;padding:0 4px;"><option>—</option><option>backup</option><option>down</option></select><input type="text" value="" placeholder="slow_start"><button class="btn btn-danger btn-sm" onclick="removeEntry(this)">✕</button></div></div><button class="btn-add" onclick="addServer(this, '${idx}')">+ Ajouter un serveur</button></div>`;
+  container.appendChild(card);
+  updateGen();
+}
+
+function addServer(btn, upstreamId) {
+  const list = document.getElementById('servers-' + upstreamId) || btn.previousElementSibling;
+  const item = document.createElement('div');
+  item.className = 'entry-item';
+  item.style.gridTemplateColumns = '1fr 80px 80px auto auto auto auto';
+  item.innerHTML = `<input type="text" value="127.0.0.1:8081" placeholder="host:port"><input type="number" value="1" placeholder="weight"><input type="number" value="3" placeholder="max_fails"><input type="text" value="10s" placeholder="fail_timeout"><select style="background:var(--input-bg);border:none;color:var(--text-secondary);font-size:11px;padding:0 4px;"><option>—</option><option>backup</option><option>down</option></select><input type="text" value="" placeholder="slow_start"><button class="btn btn-danger btn-sm" onclick="removeEntry(this)">✕</button>`;
+  if (list) list.appendChild(item);
+  updateGen();
+}
+
+function addCustomHeader() {
+  const list = document.getElementById('custom-headers');
+  const item = document.createElement('div');
+  item.className = 'entry-item';
+  item.style.gridTemplateColumns = '1fr 1fr auto';
+  item.innerHTML = `<input type="text" placeholder="Header-Name"><input type="text" placeholder="$variable ou valeur"><button class="btn btn-danger btn-sm" onclick="removeEntry(this)">✕</button>`;
+  list.appendChild(item);
+  updateGen();
+}
+
+function addRespHeader() {
+  const list = document.getElementById('custom-resp-headers');
+  const item = document.createElement('div');
+  item.className = 'entry-item';
+  item.style.gridTemplateColumns = '1fr 1fr auto';
+  item.innerHTML = `<input type="text" placeholder="Header-Name"><input type="text" placeholder="Value"><button class="btn btn-danger btn-sm" onclick="removeEntry(this)">✕</button>`;
+  list.appendChild(item);
+  updateGen();
+}
+
+function addReqZone() {
+  const list = document.getElementById('req-zones');
+  const row = document.createElement('div');
+  row.className = 'zone-row';
+  row.innerHTML = `<input type="text" value="$binary_remote_addr" placeholder="key"><input type="text" value="zone=newzone:10m rate=5r/s" placeholder="zone=name:size rate=Xr/s"><select style="background:var(--input-bg);border:1px solid var(--border);color:var(--text-secondary);padding:0 8px;border-radius:6px;font-size:12px;height:36px;"><option>limit_req_zone</option></select><button class="btn btn-danger btn-sm" onclick="removeEntry(this.parentElement)">✕</button>`;
+  list.appendChild(row);
+  updateGen();
+}
+
+function addConnZone() {
+  const list = document.getElementById('conn-zones');
+  const row = document.createElement('div');
+  row.className = 'zone-row';
+  row.innerHTML = `<input type="text" value="$server_name" placeholder="key"><input type="text" value="zone=servers:10m" placeholder="zone=name:size"><select style="background:var(--input-bg);border:1px solid var(--border);color:var(--text-secondary);padding:0 8px;border-radius:6px;font-size:12px;height:36px;"><option>limit_conn_zone</option></select><button class="btn btn-danger btn-sm" onclick="removeEntry(this.parentElement)">✕</button>`;
+  list.appendChild(row);
+  updateGen();
+}
+
+function addRewrite() {
+  const list = document.getElementById('rewrite-rules');
+  const item = document.createElement('div');
+  item.className = 'entry-item';
+  item.style.gridTemplateColumns = '1fr 1fr auto auto';
+  item.innerHTML = `<input type="text" value="^/api/(.*)$" placeholder="Regex source"><input type="text" value="/v2/$1" placeholder="Destination"><select style="background:var(--input-bg);border:none;color:var(--text-secondary);padding:0 4px;font-size:12px;"><option>permanent</option><option>redirect</option><option>last</option><option>break</option></select><button class="btn btn-danger btn-sm" onclick="removeEntry(this)">✕</button>`;
+  list.appendChild(item);
+  updateGen();
+}
+
+function addReturn() {
+  const list = document.getElementById('return-rules');
+  const item = document.createElement('div');
+  item.className = 'entry-item';
+  item.style.gridTemplateColumns = '80px 1fr auto';
+  item.innerHTML = `<input type="text" value="302" placeholder="Code"><input type="text" value="https://example.com/" placeholder="URL"><button class="btn btn-danger btn-sm" onclick="removeEntry(this)">✕</button>`;
+  list.appendChild(item);
+  updateGen();
+}
+
+function addMapBlock() {
+  const container = document.getElementById('map-blocks');
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.cssText = 'margin-bottom:0.75rem;border-color:rgba(59,127,212,0.1)';
+  card.innerHTML = `<div class="form-grid"><div class="form-group"><label>Source variable</label><input type="text" value="$request_method" placeholder="$variable"></div><div class="form-group"><label>Destination variable</label><input type="text" value="$is_get" placeholder="$new_variable"></div><div class="form-group span-2"><label>Valeurs</label><textarea rows="3">default 0\nGET 1</textarea></div></div><button class="btn btn-danger btn-sm" onclick="this.closest('.card').remove()" style="margin-top:0.5rem;">Supprimer</button>`;
+  container.appendChild(card);
+  updateGen();
+}
+
+function addStreamServer() {
+  const container = document.getElementById('stream-servers');
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.cssText = 'margin-top:0.75rem;border-color:rgba(59,127,212,0.1)';
+  card.innerHTML = `<div class="form-grid"><div class="form-group"><label>listen</label><input type="text" value="3306" placeholder="port"></div><div class="form-group"><label>protocole</label><select><option>tcp</option><option>udp</option></select></div><div class="form-group"><label>proxy_pass</label><input type="text" value="db_backend" placeholder="upstream ou host:port"></div><div class="form-group"><label>proxy_timeout</label><input type="text" value="600s"></div></div><button class="btn btn-danger btn-sm" onclick="this.closest('.card').remove()" style="margin-top:0.5rem;">Supprimer</button>`;
+  container.appendChild(card);
+  updateGen();
+}
+
+function updateCiphers(sel) {
+  const ciphers = {
+    modern: 'TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256',
+    intermediate: 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384',
+    old: 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA256:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA',
+    custom: document.getElementById('ssl_ciphers').value
+  };
+  if (sel.value !== 'custom') document.getElementById('ssl_ciphers').value = ciphers[sel.value] || '';
+  updateGen();
+}
+
+function updateLogFormat() {
+  const formats = {
+    combined: "'$remote_addr - $remote_user [$time_local] \"$request\" $status $body_bytes_sent \"$http_referer\" \"$http_user_agent\"'",
+    main: "'$remote_addr - $remote_user [$time_local] \"$request\" $status $body_bytes_sent \"$http_referer\" \"$http_user_agent\" $request_time $upstream_response_time'",
+    json: "escape=json '{\"time\":\"$time_iso8601\",\"remote_addr\":\"$remote_addr\",\"method\":\"$request_method\",\"uri\":\"$uri\",\"status\":$status,\"bytes_sent\":$bytes_sent,\"request_time\":$request_time,\"upstream_time\":\"$upstream_response_time\",\"user_agent\":\"$http_user_agent\",\"referer\":\"$http_referer\"}'",
+    custom: document.getElementById('log_format_val').value
+  };
+  const sel = document.getElementById('log_format_select').value;
+  if (sel !== 'custom') document.getElementById('log_format_val').value = formats[sel] || '';
+  updateGen();
+}
+
+// ── GENERATOR ──
+function generateNginxConf() {
+  const lines = [];
+  const c = (text) => lines.push(text);
+  const B = (directive) => { c(directive + ' {'); };
+  const E = () => { c('}'); };
+  const D = (dir, val, indent='    ') => { if(val) c(`${indent}${dir} ${val};`); };
+
+  c(`# nginx.conf — Généré par OCASDEV NGINX Generator`);
+  c(`# https://ocasdev.com | AS216190`);
+  c(`# ${new Date().toISOString()}`);
+  c(``);
+
+  D('user', v('g_user', 'www-data'), '');
+  D('worker_processes', v('g_worker_processes', 'auto'), '');
+  D('worker_rlimit_nofile', v('g_rlimit_nofile', '65535'), '');
+  if (isOn('g_pcre_jit')) c('pcre_jit on;');
+  if (v('g_pid')) D('pid', v('g_pid', '/var/run/nginx.pid'), '');
+  c('');
+  D('error_log', `${v('g_error_log', '/var/log/nginx/error.log')} ${v('g_error_level', 'warn')}`, '');
+  c('');
+
+  B('events');
+  D('worker_connections', v('ev_connections', '1024'));
+  D('use', document.getElementById('ev_use') ? document.getElementById('ev_use').value : 'epoll');
+  if (isOn('ev_multi_accept')) D('multi_accept', 'on');
+  if (isOn('ev_accept_mutex')) D('accept_mutex', 'on');
+  if (v('ev_mutex_delay')) D('accept_mutex_delay', v('ev_mutex_delay', '500ms'));
+  E();
+  c('');
+
+  B('http');
+  c('    include       /etc/nginx/mime.types;');
+  c('    default_type  application/octet-stream;');
+  c('');
+
+  // log format
+  if (isOn('log_access')) {
+    c(`    log_format main ${v('log_format_val', "'$remote_addr - $remote_user [$time_local] \"$request\" $status $body_bytes_sent'")};`);
+    let logLine = `    access_log ${v('log_access_path', '/var/log/nginx/access.log')} main`;
+    if (v('log_buffer')) logLine += ` buffer=${v('log_buffer', '32k')}`;
+    if (v('log_flush')) logLine += ` flush=${v('log_flush', '5m')}`;
+    c(logLine + ';');
+    c('');
+  }
+
+  // rate limit zones
+  document.querySelectorAll('#req-zones .zone-row').forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    if (inputs[0] && inputs[1]) {
+      c(`    limit_req_zone ${inputs[0].value} ${inputs[1].value};`);
+    }
+  });
+  document.querySelectorAll('#conn-zones .zone-row').forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    if (inputs[0] && inputs[1]) {
+      c(`    limit_conn_zone ${inputs[0].value} ${inputs[1].value};`);
+    }
+  });
+  if (document.querySelectorAll('#req-zones .zone-row').length || document.querySelectorAll('#conn-zones .zone-row').length) c('');
+
+  // map blocks
+  document.querySelectorAll('#map-blocks .card').forEach(block => {
+    const inputs = block.querySelectorAll('input');
+    const ta = block.querySelector('textarea');
+    if (inputs[0] && inputs[1]) {
+      c(`    map ${inputs[0].value} ${inputs[1].value} {`);
+      if (ta) ta.value.split('\n').forEach(line => { if(line.trim()) c(`        ${line.trim()};`); });
+      c(`    }`);
+      c('');
+    }
+  });
+
+  // proxy cache path
+  if (isOn('cache_enabled')) {
+    c(`    proxy_cache_path ${v('cache_path', '/var/cache/nginx')} levels=${v('cache_levels','1:2')} keys_zone=${v('cache_zone','cache_one:10m')} max_size=${v('cache_max_size','10g')} inactive=${v('cache_inactive','60m')} use_temp_path=${document.getElementById('cache_use_temp') ? document.getElementById('cache_use_temp').value : 'off'};`);
+    c('');
+  }
+
+  if (isOn('fcgi_cache_enabled')) {
+    c(`    fastcgi_cache_path ${v('fcgi_cache_path', '/var/cache/nginx/fastcgi')} levels=1:2 keys_zone=fcgi_one:10m;`);
+    c(`    fastcgi_cache_key ${v('fcgi_cache_key', '$scheme$request_method$host$request_uri')};`);
+    c('');
+  }
+
+  // Timeouts
+  D('keepalive_timeout', v('h_keepalive_timeout', '65s'));
+  D('keepalive_requests', v('h_keepalive_requests', '100'));
+  if (v('h_keepalive_time')) D('keepalive_time', v('h_keepalive_time', '1h'));
+  D('client_header_timeout', v('h_client_header_timeout', '60s'));
+  D('client_body_timeout', v('h_client_body_timeout', '60s'));
+  D('send_timeout', v('h_send_timeout', '60s'));
+  if (document.getElementById('h_reset_timeout')) D('reset_timedout_connection', document.getElementById('h_reset_timeout').value);
+  c('');
+
+  // Buffers
+  D('client_max_body_size', v('h_body_size', '10m'));
+  D('client_body_buffer_size', v('h_body_buffer', '128k'));
+  D('client_header_buffer_size', v('h_header_buffer', '1k'));
+  if (v('h_large_headers')) D('large_client_header_buffers', v('h_large_headers', '4 8k'));
+  c('');
+
+  // Performance
+  if (isOn('h_sendfile')) D('sendfile', 'on');
+  if (isOn('h_tcp_nopush')) D('tcp_nopush', 'on');
+  if (isOn('h_tcp_nodelay')) D('tcp_nodelay', 'on');
+  if (isOn('h_server_tokens')) D('server_tokens', 'off');
+  if (isOn('sec_server_tokens')) D('server_tokens', 'off');
+  c('');
+
+  if (v('h_types_hash')) D('types_hash_max_size', v('h_types_hash', '2048'));
+  if (v('h_server_names_hash')) D('server_names_hash_bucket_size', v('h_server_names_hash', '64'));
+  if (v('h_file_cache')) c(`    open_file_cache max=${v('h_file_cache', '200000 inactive=20s')};`);
+  if (v('h_file_cache_valid')) D('open_file_cache_valid', v('h_file_cache_valid', '30s'));
+  c('');
+
+  if (v('h_resolver')) {
+    D('resolver', `${v('h_resolver')} ${v('h_resolver_timeout') ? 'resolver_timeout ' + v('h_resolver_timeout') : ''}`);
+    c('');
+  }
+
+  // Gzip
+  if (isOn('gz_enabled')) {
+    D('gzip', 'on');
+    if (isOn('gz_static')) D('gzip_static', 'on');
+    if (isOn('gz_vary')) D('gzip_vary', 'on');
+    if (isOn('gz_proxied')) D('gzip_proxied', 'any');
+    D('gzip_comp_level', v('gz_level', '6'));
+    D('gzip_buffers', v('gz_buffers', '16 8k'));
+    D('gzip_http_version', v('gz_http_version', '1.1'));
+    D('gzip_min_length', v('gz_min_length', '256'));
+    if (v('gz_types')) D('gzip_types', v('gz_types'));
+    c('');
+  }
+
+  // Brotli
+  if (isOn('br_enabled')) {
+    D('brotli', 'on');
+    if (v('br_static')) D('brotli_static', document.getElementById('br_static') ? document.getElementById('br_static').value : 'on');
+    D('brotli_comp_level', v('br_level', '6'));
+    if (v('br_types')) D('brotli_types', v('br_types'));
+    c('');
+  }
+
+  // Security global
+  if (isOn('auth_geo')) {
+    c(`    geo $allowed_ip {`);
+    const geoIps = v('auth_geo_ips', '').split('\n');
+    geoIps.forEach(line => { if (line.trim()) c(`        ${line.trim()};`); });
+    c(`    }`);
+    c('');
+  }
+
+  if (isOn('map_split')) {
+    c(`    split_clients ${v('map_split_val', '').split('\n')[0] || '"${remote_addr}" $variant'} {`);
+    v('map_split_val', '').split('\n').slice(1).forEach(line => {
+      if (line.trim()) c(`        ${line.trim()};`);
+    });
+    c(`    }`);
+    c('');
+  }
+
+  // HTTP to HTTPS redirect server block
+  if (isOn('s_redirect_https')) {
+    c(`    # Redirection HTTP → HTTPS`);
+    B('    server');
+    D('listen', '80 default_server', '        ');
+    D('listen', '[::]:80 default_server', '        ');
+    D('server_name', '_', '        ');
+    D('return', `301 https://$host$request_uri`, '        ');
+    E();
+    c('');
+  }
+
+  // Main server block
+  c(`    # Serveur principal`);
+  B('    server');
+
+  // Listen directives
+  const listenItems = document.querySelectorAll('#listen-list .entry-item');
+  listenItems.forEach(item => {
+    const inputs = item.querySelectorAll('input, select');
+    if (inputs.length >= 1) {
+      const port = inputs[0].value || '80';
+      const flags = inputs[1] ? (inputs[1].value === '—' ? '' : ' ' + inputs[1].value) : '';
+      const ipv = inputs[2] ? inputs[2].value : 'IPv4';
+      if (ipv === 'IPv4' || ipv === 'Both') c(`        listen ${port}${flags};`);
+      if (ipv === 'IPv6' || ipv === 'Both') c(`        listen [::]:${port}${flags};`);
+    }
+  });
+
+  D('server_name', v('s_server_name', 'example.com'), '        ');
+  D('root', v('s_root', '/var/www/html'), '        ');
+  D('index', v('s_index', 'index.html'), '        ');
+  if (document.getElementById('s_charset') && document.getElementById('s_charset').value !== 'off') {
+    D('charset', document.getElementById('s_charset').value, '        ');
+  }
+  c('');
+
+  // SSL config
+  D('ssl_certificate', v('ssl_cert'), '        ');
+  D('ssl_certificate_key', v('ssl_key'), '        ');
+  if (v('ssl_trusted')) D('ssl_trusted_certificate', v('ssl_trusted'), '        ');
+  if (v('ssl_dhparam')) D('ssl_dhparam', v('ssl_dhparam'), '        ');
+  D('ssl_protocols', document.getElementById('ssl_protocols') ? document.getElementById('ssl_protocols').value : 'TLSv1.2 TLSv1.3', '        ');
+  D('ssl_ciphers', v('ssl_ciphers'), '        ');
+  D('ssl_prefer_server_ciphers', document.getElementById('ssl_prefer_ciphers') ? document.getElementById('ssl_prefer_ciphers').value : 'on', '        ');
+  D('ssl_ecdh_curve', v('ssl_ecdh', 'X25519:prime256v1:secp384r1'), '        ');
+  D('ssl_session_cache', v('ssl_session_cache', 'shared:SSL:10m'), '        ');
+  D('ssl_session_timeout', v('ssl_session_timeout', '1d'), '        ');
+  D('ssl_session_tickets', document.getElementById('ssl_session_tickets') ? document.getElementById('ssl_session_tickets').value : 'off', '        ');
+  D('ssl_buffer_size', v('ssl_buffer_size', '4k'), '        ');
+  D('ssl_stapling', document.getElementById('ssl_stapling') ? document.getElementById('ssl_stapling').value : 'on', '        ');
+  D('ssl_stapling_verify', document.getElementById('ssl_stapling_verify') ? document.getElementById('ssl_stapling_verify').value : 'on', '        ');
+  if (document.getElementById('ssl_early_data') && document.getElementById('ssl_early_data').value === 'on') {
+    D('ssl_early_data', 'on', '        ');
+  }
+  c('');
+
+  if (isOn('ssl_mtls')) {
+    D('ssl_client_certificate', v('ssl_client_cert'), '        ');
+    D('ssl_verify_client', document.getElementById('ssl_verify_client') ? document.getElementById('ssl_verify_client').value : 'optional', '        ');
+    D('ssl_verify_depth', v('ssl_verify_depth', '2'), '        ');
+    c('');
+  }
+
+  // Security headers
+  if (isOn('h_hsts')) c(`        add_header Strict-Transport-Security "max-age=${v('h_hsts_age', '31536000; includeSubDomains; preload')}" always;`);
+  if (isOn('h_xframe')) c(`        add_header X-Frame-Options "${document.getElementById('h_xframe_val') ? document.getElementById('h_xframe_val').value : 'DENY'}" always;`);
+  if (isOn('h_xctype')) c(`        add_header X-Content-Type-Options "nosniff" always;`);
+  if (isOn('h_xxss')) c(`        add_header X-XSS-Protection "1; mode=block" always;`);
+  if (isOn('h_referrer')) c(`        add_header Referrer-Policy "strict-origin-when-cross-origin" always;`);
+  if (isOn('h_permissions')) c(`        add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;`);
+  if (isOn('h_csp')) c(`        add_header Content-Security-Policy "${v('h_csp_val', "default-src 'self'").replace(/\n/g, ' ')}" always;`);
+
+  // Custom response headers
+  document.querySelectorAll('#custom-resp-headers .entry-item').forEach(item => {
+    const inputs = item.querySelectorAll('input');
+    if (inputs[0] && inputs[0].value) {
+      if (inputs[1] && inputs[1].value) {
+        c(`        more_set_headers "${inputs[0].value}: ${inputs[1].value}";`);
+      } else {
+        c(`        more_clear_headers "${inputs[0].value}";`);
+      }
+    }
+  });
+
+  // CORS
+  if (isOn('h_cors')) {
+    c(`        add_header Access-Control-Allow-Origin "${v('h_cors_origin', '*')}" always;`);
+    c(`        add_header Access-Control-Allow-Methods "${v('h_cors_methods', 'GET, POST, OPTIONS')}" always;`);
+    c(`        add_header Access-Control-Allow-Headers "${v('h_cors_headers', 'Authorization, Content-Type')}" always;`);
+    c(`        add_header Access-Control-Max-Age ${v('h_cors_age', '86400')} always;`);
+  }
+
+  c('');
+
+  // Rate limiting
+  if (document.querySelectorAll('#req-zones .zone-row').length > 0) {
+    c(`        limit_req zone=${v('rl_zone_use', 'api')} burst=${v('rl_burst', '20')} ${v('rl_nodelay', 'nodelay')};`);
+    c(`        limit_req_status ${v('rl_req_status', '429')};`);
+  }
+  if (document.querySelectorAll('#conn-zones .zone-row').length > 0) {
+    c(`        limit_conn addr ${v('rl_conn_limit', '10')};`);
+    c(`        limit_conn_status ${v('rl_conn_status', '503')};`);
+  }
+
+  // Auth
+  if (isOn('auth_basic')) {
+    c(`        auth_basic "${v('auth_basic_realm', 'Restricted Area')}";`);
+    c(`        auth_basic_user_file ${v('auth_basic_file', '/etc/nginx/.htpasswd')};`);
+  }
+
+  if (isOn('auth_subrequest')) {
+    c(`        auth_request ${v('auth_req_endpoint', '/auth')};`);
+    c(`        auth_request_set ${v('auth_req_set', '$auth_status $upstream_status')};`);
+  }
+
+  c('');
+
+  // Security blocks
+  if (isOn('sec_block_dotfiles')) {
+    c(`        location ~ /\. {`);
+    c(`            deny all;`);
+    c(`            access_log off;`);
+    c(`            log_not_found off;`);
+    c(`        }`);
+    c('');
+  }
+
+  if (isOn('sec_block_git')) {
+    c(`        location ~ /\.(git|env|htaccess|htpasswd|svn|DS_Store) {`);
+    c(`            deny all;`);
+    c(`            return 404;`);
+    c(`        }`);
+    c('');
+  }
+
+  if (isOn('sec_block_backup')) {
+    c(`        location ~* \.(bak|old|sql|gz|tar|zip|7z|log|conf)$ {`);
+    c(`            deny all;`);
+    c(`            return 404;`);
+    c(`        }`);
+    c('');
+  }
+
+  if (isOn('sec_block_xmlrpc')) {
+    c(`        location = /xmlrpc.php {`);
+    c(`            deny all;`);
+    c(`            return 403;`);
+    c(`        }`);
+    c('');
+  }
+
+  if (isOn('sec_limit_methods')) {
+    c(`        if ($request_method !~ ^(${v('sec_allowed_methods', 'GET HEAD POST')})$) {`);
+    c(`            return 405;`);
+    c(`        }`);
+    c('');
+  }
+
+  if (isOn('sec_block_scanners')) {
+    c(`        if ($http_user_agent ~* "(sqlmap|nikto|nmap|masscan|zgrab|dirbuster|hydra|gobuster|wfuzz|burpsuite|arachni)") {`);
+    c(`            return 403;`);
+    c(`        }`);
+    c('');
+  }
+
+  if (isOn('sec_block_hotlink')) {
+    c(`        location ~* \.(jpg|jpeg|png|gif|webp|svg)$ {`);
+    c(`            valid_referers none blocked server_names ${v('s_server_name', 'example.com')};`);
+    c(`            if ($invalid_referer) { return 403; }`);
+    c(`        }`);
+    c('');
+  }
+
+  // IP allow/deny
+  const allowIps = v('sec_allow_ips').split('\n').map(s => s.trim()).filter(Boolean);
+  const denyIps = v('sec_deny_ips').split('\n').map(s => s.trim()).filter(Boolean);
+  if (denyIps.length > 0) {
+    denyIps.forEach(ip => c(`        deny ${ip};`));
+    c('');
+  }
+  if (allowIps.length > 0) {
+    allowIps.forEach(ip => c(`        allow ${ip};`));
+    c(`        deny all;`);
+    c('');
+  }
+
+  // Static file expires
+  if (isOn('st_expires')) {
+    c(`        # Cache navigateur — fichiers statiques`);
+    c(`        location ~* \.(jpg|jpeg|png|gif|webp|avif|ico|svg)$ {`);
+    c(`            expires ${v('st_img_expires', '30d')};`);
+    c(`            add_header Cache-Control "public, immutable";`);
+    c(`            add_header Vary Accept-Encoding;`);
+    c(`            access_log off;`);
+    c(`        }`);
+    c(`        location ~* \.(css|js|mjs)$ {`);
+    c(`            expires ${v('st_css_expires', '7d')};`);
+    c(`            add_header Cache-Control "public, must-revalidate";`);
+    c(`            add_header Vary Accept-Encoding;`);
+    c(`        }`);
+    c(`        location ~* \.(woff|woff2|ttf|otf|eot)$ {`);
+    c(`            expires ${v('st_font_expires', '1y')};`);
+    c(`            add_header Cache-Control "public, immutable";`);
+    c(`            add_header Access-Control-Allow-Origin "*";`);
+    c(`        }`);
+    c(`        location ~* \.(html|htm)$ {`);
+    c(`            expires ${v('st_html_expires', '1h')};`);
+    c(`            add_header Cache-Control "public, no-cache";`);
+    c(`        }`);
+    c(`        location ~* \.(json|xml|rss|atom)$ {`);
+    c(`            expires ${v('st_data_expires', '1d')};`);
+    c(`            add_header Cache-Control "public";`);
+    c(`        }`);
+    c('');
+  }
+
+  // Proxy config
+  if (v('p_pass')) {
+    c(`        # Configuration proxy reverse`);
+    c(`        proxy_http_version ${document.getElementById('p_http_version') ? document.getElementById('p_http_version').value : '1.1'};`);
+    c(`        proxy_read_timeout ${v('p_read_timeout', '90s')};`);
+    c(`        proxy_connect_timeout ${v('p_connect_timeout', '90s')};`);
+    c(`        proxy_send_timeout ${v('p_send_timeout', '90s')};`);
+    c(`        proxy_buffer_size ${v('p_buffer_size', '128k')};`);
+    c(`        proxy_buffers ${v('p_buffers', '4 256k')};`);
+    c(`        proxy_busy_buffers_size ${v('p_busy_buffers', '256k')};`);
+    if (v('p_temp_file') !== '0') c(`        proxy_max_temp_file_size ${v('p_temp_file', '0')};`);
+    if (isOn('p_x_real_ip')) c(`        proxy_set_header X-Real-IP $remote_addr;`);
+    if (isOn('p_x_forwarded_for')) c(`        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;`);
+    if (isOn('p_x_forwarded_proto')) c(`        proxy_set_header X-Forwarded-Proto $scheme;`);
+    if (isOn('p_host_header')) c(`        proxy_set_header Host $host;`);
+    if (isOn('p_upgrade_websocket')) {
+      c(`        proxy_set_header Upgrade $http_upgrade;`);
+      c(`        proxy_set_header Connection $connection_upgrade;`);
+    }
+    if (isOn('p_intercept_errors')) c(`        proxy_intercept_errors on;`);
+    if (v('p_next_upstream')) c(`        proxy_next_upstream ${v('p_next_upstream')};`);
+    if (v('p_next_tries')) c(`        proxy_next_upstream_tries ${v('p_next_tries', '3')};`);
+    if (v('p_next_timeout')) c(`        proxy_next_upstream_timeout ${v('p_next_timeout', '0')};`);
+    document.querySelectorAll('#custom-headers .entry-item').forEach(item => {
+      const inputs = item.querySelectorAll('input');
+      if (inputs[0] && inputs[0].value) c(`        proxy_set_header ${inputs[0].value} ${inputs[1] ? inputs[1].value : ''};`);
+    });
+    c('');
+
+    // Cache in location if enabled
+    if (isOn('cache_enabled')) {
+      c(`        proxy_cache cache_one;`);
+      c(`        proxy_cache_key ${v('cache_key', '$scheme$proxy_host$request_uri')};`);
+      c(`        proxy_cache_valid 200 ${v('cache_valid_200', '1d')};`);
+      c(`        proxy_cache_valid 404 ${v('cache_valid_404', '1m')};`);
+      c(`        proxy_cache_min_uses ${v('cache_min_uses', '1')};`);
+      if (v('cache_use_stale')) c(`        proxy_cache_use_stale ${v('cache_use_stale')};`);
+      if (document.getElementById('cache_lock') && document.getElementById('cache_lock').value === 'on') c(`        proxy_cache_lock on;`);
+      c('');
+    }
+  }
+
+  // Rewrites
+  document.querySelectorAll('#rewrite-rules .entry-item').forEach(item => {
+    const inputs = item.querySelectorAll('input, select');
+    if (inputs[0] && inputs[0].value && inputs[1] && inputs[1].value) {
+      const flag = inputs[2] ? inputs[2].value : 'permanent';
+      c(`        rewrite ${inputs[0].value} ${inputs[1].value} ${flag};`);
+    }
+  });
+
+  // Return rules
+  document.querySelectorAll('#return-rules .entry-item').forEach(item => {
+    const inputs = item.querySelectorAll('input');
+    if (inputs[0] && inputs[0].value) {
+      c(`        return ${inputs[0].value}${inputs[1] && inputs[1].value ? ' ' + inputs[1].value : ''};`);
+    }
+  });
+
+  // Error pages
+  document.querySelectorAll('#error-pages .entry-item').forEach(item => {
+    const inputs = item.querySelectorAll('input');
+    if (inputs[0] && inputs[1] && inputs[0].value && inputs[1].value) {
+      c(`        error_page ${inputs[0].value} ${inputs[1].value};`);
+    }
+  });
+
+  c('');
+
+  // Location blocks
+  document.querySelectorAll('#locations-container .location-block').forEach(block => {
+    const selects = block.querySelectorAll('select');
+    const inputs = block.querySelectorAll('input[type="text"]');
+    if (inputs.length >= 2 && selects.length >= 2) {
+      const mod = selects[0].value;
+      const path = inputs[0].value;
+      const type = selects[1].value;
+      const val = inputs[1].value;
+      c(`        location ${mod}${path} {`);
+      if (type === 'try_files' || type === 'static') {
+        c(`            try_files ${val};`);
+      } else if (type === 'proxy_pass') {
+        c(`            proxy_pass ${val};`);
+      } else if (type === 'return') {
+        c(`            return ${val};`);
+      } else if (type === 'alias') {
+        c(`            alias ${val};`);
+      } else if (type === 'fastcgi') {
+        c(`            try_files $uri =404;`);
+        c(`            fastcgi_pass ${val};`);
+        c(`            fastcgi_index index.php;`);
+        c(`            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;`);
+        c(`            include fastcgi_params;`);
+        if (isOn('fcgi_cache_enabled')) {
+          c(`            fastcgi_cache fcgi_one;`);
+          c(`            fastcgi_cache_valid 200 ${v('fcgi_cache_valid', '60m')};`);
+          c(`            fastcgi_cache_bypass ${v('fcgi_bypass', '$no_cache')};`);
+        }
+      }
+      if (type === 'proxy_pass') {
+        c(`            proxy_pass ${val};`);
+      }
+      c(`        }`);
+      c('');
+    }
+  });
+
+  // Health check status page
+  if (isOn('hc_stub_status')) {
+    c(`        location = ${v('hc_status_uri', '/nginx_status')} {`);
+    c(`            stub_status on;`);
+    const allowStatus = v('hc_status_allow', '127.0.0.1 ::1').split(/\s+/);
+    allowStatus.forEach(ip => { if(ip) c(`            allow ${ip};`); });
+    c(`            deny all;`);
+    c(`            access_log off;`);
+    c(`        }`);
+    c('');
+  }
+
+  E(); // end server{}
+  c('');
+
+  // Upstream blocks
+  document.querySelectorAll('#upstreams-container .card[data-upstream]').forEach(card => {
+    const inputs = card.querySelectorAll('input, select');
+    const nameInput = inputs[0];
+    const algoSelect = inputs[1];
+    const kaInput = inputs[2];
+    if (nameInput) {
+      B(`    upstream ${nameInput.value || 'backend'}`);
+      if (algoSelect && algoSelect.value) c(`        ${algoSelect.value}`);
+      const servers = card.querySelectorAll('.entry-item');
+      servers.forEach(s => {
+        const si = s.querySelectorAll('input, select');
+        if (si[0] && si[0].value) {
+          let serverLine = `        server ${si[0].value}`;
+          if (si[1] && si[1].value && si[1].value != '1') serverLine += ` weight=${si[1].value}`;
+          if (si[2] && si[2].value) serverLine += ` max_fails=${si[2].value}`;
+          if (si[3] && si[3].value) serverLine += ` fail_timeout=${si[3].value}`;
+          if (si[4] && si[4].value && si[4].value !== '—') serverLine += ` ${si[4].value}`;
+          if (si[5] && si[5].value) serverLine += ` slow_start=${si[5].value}`;
+          c(serverLine + ';');
+        }
+      });
+      if (kaInput && kaInput.value) c(`        keepalive ${kaInput.value};`);
+      E();
+      c('');
+    }
+  });
+
+  // Health check active
+  if (isOn('hc_active')) {
+    c(`    # Health check actif (NGINX Plus ou ngx_healthcheck)`);
+    c(`    match server_ok {`);
+    c(`        status 200-399;`);
+    c(`        header Content-Type ~ text;`);
+    c(`    }`);
+    c('');
+  }
+
+  E(); // end http{}
+
+  // Stream block
+  if (isOn('stream_enabled')) {
+    c('');
+    B('stream');
+    document.querySelectorAll('#stream-servers .card').forEach(sCard => {
+      const si = sCard.querySelectorAll('input, select');
+      B('    server');
+      if (si[0]) {
+        const proto = si[1] ? si[1].value : 'tcp';
+        c(`        listen ${si[0].value}${proto === 'udp' ? ' udp' : ''};`);
+      }
+      if (si[2]) c(`        proxy_pass ${si[2].value};`);
+      if (si[3]) c(`        proxy_timeout ${si[3].value};`);
+      if (si[4]) c(`        proxy_connect_timeout ${si[4].value};`);
+      E();
+    });
+    E();
+  }
+
+  return lines.join('\n');
+}
+
+function generateSitesAvailable() {
+  const lines = [];
+  lines.push(`# /etc/nginx/sites-available/${v('s_server_name', 'example.com').split(' ')[0]}`);
+  lines.push(`# Include dans nginx.conf : include /etc/nginx/sites-enabled/*;`);
+  lines.push(``);
+  if (isOn('s_redirect_https')) {
+    lines.push(`server {`);
+    lines.push(`    listen 80;`);
+    lines.push(`    listen [::]:80;`);
+    lines.push(`    server_name ${v('s_server_name', 'example.com')};`);
+    lines.push(`    return 301 https://$host$request_uri;`);
+    lines.push(`}`);
+    lines.push(``);
+  }
+  lines.push(`# Symlink : ln -s /etc/nginx/sites-available/${v('s_server_name', 'example.com').split(' ')[0]} /etc/nginx/sites-enabled/`);
+  lines.push(`# Test    : nginx -t`);
+  lines.push(`# Reload  : systemctl reload nginx`);
+  return lines.join('\n');
+}
+
+function generateUpstreamConf() {
+  const lines = [];
+  lines.push(`# /etc/nginx/conf.d/upstream.conf`);
+  lines.push(``);
+  document.querySelectorAll('#upstreams-container .card[data-upstream]').forEach(card => {
+    const inputs = card.querySelectorAll('input, select');
+    const nameInput = inputs[0];
+    const algoSelect = inputs[1];
+    const kaInput = inputs[2];
+    if (nameInput && nameInput.value) {
+      lines.push(`upstream ${nameInput.value} {`);
+      if (algoSelect && algoSelect.value) lines.push(`    ${algoSelect.value}`);
+      const servers = card.querySelectorAll('.entry-item');
+      servers.forEach(s => {
+        const si = s.querySelectorAll('input, select');
+        if (si[0] && si[0].value) {
+          let serverLine = `    server ${si[0].value}`;
+          if (si[1] && si[1].value && si[1].value != '1') serverLine += ` weight=${si[1].value}`;
+          if (si[2] && si[2].value) serverLine += ` max_fails=${si[2].value}`;
+          if (si[3] && si[3].value) serverLine += ` fail_timeout=${si[3].value}`;
+          if (si[4] && si[4].value && si[4].value !== '—') serverLine += ` ${si[4].value}`;
+          lines.push(serverLine + ';');
+        }
+      });
+      if (kaInput && kaInput.value) lines.push(`    keepalive ${kaInput.value};`);
+      lines.push(`}`);
+      lines.push(``);
+    }
+  });
+  if (lines.length <= 2) lines.push(`# Aucun upstream configuré`);
+  return lines.join('\n');
+}
+
+function generateStreamConf() {
+  if (!isOn('stream_enabled')) return `# Stream désactivé\n# Activez-le dans la section "Stream (TCP/UDP)"`;
+  const lines = [];
+  lines.push(`# /etc/nginx/stream.conf`);
+  lines.push(`# Include dans nginx.conf : include /etc/nginx/stream.conf;`);
+  lines.push(``);
+  lines.push(`stream {`);
+  document.querySelectorAll('#stream-servers .card').forEach(sCard => {
+    const si = sCard.querySelectorAll('input, select');
+    lines.push(`    server {`);
+    if (si[0]) {
+      const proto = si[1] ? si[1].value : 'tcp';
+      lines.push(`        listen ${si[0].value}${proto === 'udp' ? ' udp' : ''};`);
+    }
+    if (si[2]) lines.push(`        proxy_pass ${si[2].value};`);
+    if (si[3]) lines.push(`        proxy_timeout ${si[3].value};`);
+    if (si[4]) lines.push(`        proxy_connect_timeout ${si[4].value};`);
+    lines.push(`    }`);
+  });
+  lines.push(`}`);
+  return lines.join('\n');
+}
+
+function highlight(code) {
+  return code
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/(#[^\n]*)/g, '<span class="cmt">$1</span>')
+    .replace(/\b(server|upstream|events|http|stream|location|map|geo|split_clients)\b\s*\{/g, '<span class="sec">$1</span> {')
+    .replace(/\b(server_name|listen|root|index|charset|error_page|return|rewrite|include|add_header|proxy_pass|proxy_set_header|fastcgi_pass|try_files|expires|limit_req|limit_conn|allow|deny|auth_basic|auth_request|health_check|stub_status|ssl_certificate|ssl_protocols|ssl_ciphers|gzip|brotli|log_format|access_log|error_log|worker_processes|worker_connections|keepalive|keepalive_timeout|proxy_cache|proxy_cache_path|ssl_session_cache|ssl_stapling)\b/g, '<span class="key">$1</span>')
+    .replace(/(on|off|always)\b/g, '<span class="kw">$1</span>')
+    .replace(/"([^"]*)"/g, '<span class="str">"$1"</span>')
+    .replace(/'([^']*)'/g, '<span class="str">\'$1\'</span>')
+    .replace(/(\d+[mskgMSKG]?)\b/g, '<span class="num">$1</span>');
+}
+
+function updateGen() {
+  let code = '';
+  switch(activeTab) {
+    case 'nginx': code = generateNginxConf(); break;
+    case 'sites': code = generateSitesAvailable(); break;
+    case 'upstream-conf': code = generateUpstreamConf(); break;
+    case 'stream-conf': code = generateStreamConf(); break;
+  }
+  const pre = document.getElementById('output-pre');
+  pre.innerHTML = highlight(code);
+  const lineCount = code.split('\n').length;
+  document.getElementById('line-count').textContent = lineCount + ' lignes';
+  document.getElementById('status-text').textContent = `Configuration valide · ${lineCount} lignes`;
+}
+
+function copyConfig() {
+  let code = '';
+  switch(activeTab) {
+    case 'nginx': code = generateNginxConf(); break;
+    case 'sites': code = generateSitesAvailable(); break;
+    case 'upstream-conf': code = generateUpstreamConf(); break;
+    case 'stream-conf': code = generateStreamConf(); break;
+  }
+  navigator.clipboard.writeText(code).then(() => {
+    const flash = document.getElementById('copy-flash');
+    flash.classList.add('show');
+    setTimeout(() => flash.classList.remove('show'), 2200);
+  });
+}
+
+function downloadConfig() {
+  let code = '', filename = 'nginx.conf';
+  switch(activeTab) {
+    case 'nginx': code = generateNginxConf(); filename = 'nginx.conf'; break;
+    case 'sites': code = generateSitesAvailable(); filename = v('s_server_name', 'example.com').split(' ')[0]; break;
+    case 'upstream-conf': code = generateUpstreamConf(); filename = 'upstream.conf'; break;
+    case 'stream-conf': code = generateStreamConf(); filename = 'stream.conf'; break;
+  }
+  const blob = new Blob([code], {type: 'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+// Wire up all inputs
+document.addEventListener('input', updateGen);
+document.addEventListener('change', updateGen);
+
+// Initial generation
+updateGen();
+</script>
+</body>
+</html>
